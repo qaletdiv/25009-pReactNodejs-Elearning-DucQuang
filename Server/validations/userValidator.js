@@ -23,9 +23,23 @@ const registerValidationRule = () => [
     .notEmpty().withMessage("Mật khẩu không được để trống")
     .isLength({min: 6, max: 20}).withMessage("Mật khẩu phải từ 6 đến 20 ký tự")
     .trim()
-    .matches(/^[A-Z][a-zA-Z0-9]*/).withMessage("Mật khẩu phải bao gồm chữ in hoa, thường và số")
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]*$/).withMessage("Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số, không chứa ký tự đặc biệt")
     .matches(/^\S*$/).withMessage("Mật khẩu không được chưa khoảng trắng")
 ]
 
+const loginValidationRule = () => [
+    body('email')
+    .notEmpty().withMessage("Email không được để trống")
+    .isEmail().withMessage("Email không đúng định dạng")
+    .trim()
+    .matches(/^\S*$/).withMessage("Email không được chưa khoảng trắng"), 
 
-module.exports = {registerValidationRule}
+    body('password')
+    .notEmpty().withMessage("Mật khẩu không được để trống")
+    .isLength({min: 6, max:20}).withMessage("Mật khẩu phải từ 6 đến 20 ký tự")
+    .trim()
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]*$/).withMessage("Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số, không chứa ký tự đặc biệt")
+    .matches(/^\S*$/).withMessage("Mật khẩu không được chưa khoảng trắng")
+]
+
+module.exports = {registerValidationRule, loginValidationRule}
