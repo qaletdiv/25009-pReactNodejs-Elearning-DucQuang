@@ -5,6 +5,7 @@ const initialState = {
   users: null,
   loading: false,
   error: null,
+  accessToken: localStorage.getItem("accessToken") || null,
 };
 
 export const registerUser = createAsyncThunk(
@@ -30,6 +31,25 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const loginUser = createAsyncThunk(
+  "auth/loginUser",
+  async ({ email, password }) => {
+    try {
+      const response = await axiosClient.post("/users/login", {
+        email,
+        password,
+      });
+      const token = response.data.token;
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+      return token;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -43,6 +63,15 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         (state.loading = false), (state.error = action.payload);
+      })
+      .addCase(loginUser.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        (state.loading = false), (state.accessToken = action.payload);
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        (state.loading = true), (state.error = action.error.message);
       });
   },
 });

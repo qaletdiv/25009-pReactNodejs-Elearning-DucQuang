@@ -10,6 +10,10 @@ export const axiosClient = axios.create({
 })
 axiosClient.interceptors.request.use(
     (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+         config.headers.Authorization = `Bearer ${token}`;
+      }
       return config;
     },
     (error) => {
@@ -21,6 +25,10 @@ axiosClient.interceptors.request.use(
       return response;
     },
     (error) => {
+      const { response } = error;
+      if (response && response.status === 401) {
+        localStorage.removeItem("accessToken");
+      }
      return Promise.reject(error);
     }
   );
