@@ -2,7 +2,7 @@ import React from "react";
 import InputField from "../../components/InputField/InputField";
 import { useForm } from "react-hook-form";
 import ButtonSubmit from "../../components/buttonSubmit/ButtonSubmit";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { forgotPassword } from "../../redux/AuthSlice/AuthSlice";
 import { useNavigate } from "react-router-dom";
 const ForgotPassword = () => {
@@ -12,7 +12,6 @@ const ForgotPassword = () => {
     formState: { errors },
     setError,
   } = useForm();
-  const { loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const onHandleSubmit = async (data) => {
@@ -57,7 +56,7 @@ const ForgotPassword = () => {
             }}
             error={errors.email}
           />
-          <ButtonSubmit type="submit" isLoading={loading}>
+          <ButtonSubmit type="submit">
             Send
           </ButtonSubmit>
           <p className="text-center text-gray-600 mt-4">
