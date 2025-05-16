@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import ButtonSubmit from "../../components/buttonSubmit/ButtonSubmit";
 import { useSelector, useDispatch} from "react-redux";
 import { resetPassword } from "../../redux/AuthSlice/AuthSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,useSearchParams} from "react-router-dom";
 const ResetPassword = () => {
   const {
     register,
@@ -12,14 +12,22 @@ const ResetPassword = () => {
     formState: { errors },
     watch
   } = useForm();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const {loading} = useSelector(state => state.auth)
   const dispatch = useDispatch();
   const password = watch("password"); 
   const navigate = useNavigate();
-  const onHandleSubmit = (data) => {
+  if (!token) {
+    return <div>Error: No token found in URL. Please check the reset link.</div>;
+  }
+  const onHandleSubmit = async (data) => {
     try {
       delete data.confirmedPassword;
-      dispatch(resetPassword(data)); 
+      const payload = {newPassword: data.password, token}
+      await dispatch(resetPassword(payload)).unwrap(); 
+      console.log(payload);
+      console.log("Reset password thành công");
       navigate('/login')
     } catch (error) {
       console.log(error);
@@ -33,7 +41,7 @@ const ResetPassword = () => {
             Reset Password
           </h2>
           <InputField
-            label="Mật khẩu"
+            label="Mật khẩu mới"
             type="password"
             name="password"
             placeholder="Nhập mật khẩu"

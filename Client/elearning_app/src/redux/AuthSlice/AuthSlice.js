@@ -33,7 +33,7 @@ export const registerUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ email, password }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await axiosClient.post("/users/login", {
         email,
@@ -45,7 +45,12 @@ export const loginUser = createAsyncThunk(
       }
       return token;
     } catch (error) {
-      console.log(error);
+      const msg =
+        error.response?.data?.errors?.[0]?.msg ||
+        error.response?.data?.message ||
+        error.message ||
+        "Đã xảy ra lỗi không xác định";
+      return rejectWithValue(msg);
     }
   }
 );
@@ -71,10 +76,11 @@ export const forgotPassword = createAsyncThunk(
 
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async ({ password }) => {
+  async ({ newPassword, token}) => {
     try {
       const response = await axiosClient.post("/users/reset-password", {
-        password,
+        newPassword,
+        token
       });
       return response.data;
     } catch (error) {

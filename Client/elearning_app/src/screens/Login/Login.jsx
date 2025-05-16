@@ -2,7 +2,7 @@ import React from "react";
 import InputField from "../../components/InputField/InputField";
 import ButtonSubmit from "../../components/buttonSubmit/ButtonSubmit";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { loginUser } from "../../redux/AuthSlice/AuthSlice";
 import { useNavigate } from "react-router-dom";
 const Login = () => {
@@ -10,25 +10,23 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
+    setError
   } = useForm();
-  const {loading} = useSelector(state => state.auth)
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const onHandleSubmit = (data) => {
+  const onHandleSubmit = async (data) => {
     try {
-        dispatch(loginUser(data)).unwrap();
-        reset();
-    } catch(error) {
-        console.log(error);
+      await dispatch(loginUser(data)).unwrap();
+    } catch (error) {
+       setError("password", { type: "server", message: error });
     }
-  }
+  };
   const gotoRegister = () => {
-    navigate("/register")
-  }
+    navigate("/register");
+  };
   const gotoForgotPassword = () => {
-    navigate("/forgot-password")
-  }
+    navigate("/forgot-password");
+  };
   return (
     <div className="flex w-screen h-screen overflow-hidden">
       <div className="w-3/4 bg-white relative">
@@ -40,7 +38,10 @@ const Login = () => {
         <div className="absolute inset-0 bg-black opacity-40"></div>
       </div>
       <div className="w-2/4 h-screen flex items-center justify-center">
-        <form className="w-3/4 space-y-4 p-6 bg-white rounded-2xl shadow-lg" onSubmit={handleSubmit(onHandleSubmit)}>
+        <form
+          className="w-3/4 space-y-4 p-6 bg-white rounded-2xl shadow-lg"
+          onSubmit={handleSubmit(onHandleSubmit)}
+        >
           <h2 className="text-4xl font-bold text-center text-gray-800 mb-6">
             Login
           </h2>
@@ -93,11 +94,11 @@ const Login = () => {
             }}
             error={errors.password}
           />
-          <ButtonSubmit type="submit" isLoading={loading}>
+          <ButtonSubmit type="submit">
             Submit
           </ButtonSubmit>
-           <p className="text-center text-gray-600 mt-4">
-            Bạn chưa  có tài khoản?
+          <p className="text-center text-gray-600 mt-4">
+            Bạn chưa có tài khoản?
             <span
               className="text-blue-600 hover:underline cursor-pointer"
               onClick={gotoRegister}
@@ -105,7 +106,7 @@ const Login = () => {
               Đăng ký
             </span>
           </p>
-           <p className="text-center text-gray-600 mt-4">
+          <p className="text-center text-gray-600 mt-4">
             <span
               className="text-blue-600 hover:underline cursor-pointer"
               onClick={gotoForgotPassword}
