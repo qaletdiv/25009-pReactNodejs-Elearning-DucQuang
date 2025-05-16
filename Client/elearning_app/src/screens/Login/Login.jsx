@@ -26,6 +26,9 @@ const Login = () => {
   const gotoRegister = () => {
     navigate("/register")
   }
+  const gotoForgotPassword = () => {
+    navigate("/forgot-password")
+  }
   return (
     <div className="flex w-screen h-screen overflow-hidden">
       <div className="w-3/4 bg-white relative">
@@ -105,6 +108,7 @@ const Login = () => {
            <p className="text-center text-gray-600 mt-4">
             <span
               className="text-blue-600 hover:underline cursor-pointer"
+              onClick={gotoForgotPassword}
             >
               Quên mật khẩu?
             </span>

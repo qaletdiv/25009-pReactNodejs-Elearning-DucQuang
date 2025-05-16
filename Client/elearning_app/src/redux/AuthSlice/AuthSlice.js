@@ -50,6 +50,39 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassowrd",
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post("/users/forgot-password", {
+        email,
+      });
+      return response.data;
+    } catch (error) {
+      const msg =
+        error.response?.data?.errors?.[0]?.msg ||
+        error.response?.data?.message ||
+        error.message ||
+        "Đã xảy ra lỗi không xác định";
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ password }) => {
+    try {
+      const response = await axiosClient.post("/users/reset-password", {
+        password,
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -72,6 +105,18 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         (state.loading = true), (state.error = action.error.message);
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
