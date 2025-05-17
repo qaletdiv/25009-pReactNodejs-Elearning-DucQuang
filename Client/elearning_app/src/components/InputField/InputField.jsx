@@ -8,6 +8,7 @@ const InputField = ({
   register,
   validationRules,
   error,
+  clearErrors,
 }) => {
   return (
     <div className="mb-4">
@@ -22,6 +23,7 @@ const InputField = ({
         }`}
         placeholder={placeholder}
         {...register(name, validationRules)}
+        onFocus={() => clearErrors(name)}
       />
       {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
     </div>
