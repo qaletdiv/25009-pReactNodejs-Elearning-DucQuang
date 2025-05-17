@@ -1,11 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { registerUser } from "../../redux/AuthSlice/AuthSlice";
 import InputField from "../../components/InputField/InputField";
 import ButtonSubmit from "../../components/buttonSubmit/ButtonSubmit";
 import { useNavigate } from "react-router-dom";
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Register = () => {
   const {
     register,
@@ -14,8 +15,8 @@ const Register = () => {
     watch,
     reset,
     setError,
+    clearErrors
   } = useForm();
-  const { loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const password = watch("password");
   const navigate = useNavigate();
@@ -26,8 +27,21 @@ const Register = () => {
     try {
       delete data.confirmedPassword;
       await dispatch(registerUser(data)).unwrap();
+      toast.success(
+        "Đăng ký thành công! Bạn sẽ được chuyển tới trang đăng nhập.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
       reset();
-      navigate("/login");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
       if (typeof error === "string" && error.includes("Email đã tồn tại")) {
         setError("email", {
@@ -35,9 +49,13 @@ const Register = () => {
           message: "Email đã tồn tại, vui lòng sử dụng email khác",
         });
       } else {
-        setError("email", {
-          type: "server",
-          message: "Đã có lỗi xảy ra, vui lòng thử lại",
+        toast.error("Server đang có lỗi, vui lòng thử lại sau.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
         });
       }
     }
@@ -82,6 +100,7 @@ const Register = () => {
               },
             }}
             error={errors.username}
+            clearErrors={clearErrors}
           />
           <InputField
             label="Email"
@@ -104,6 +123,7 @@ const Register = () => {
               },
             }}
             error={errors.email}
+            clearErrors={clearErrors}
           />
           <InputField
             label="Mật khẩu"
@@ -131,6 +151,7 @@ const Register = () => {
               },
             }}
             error={errors.password}
+            clearErrors={clearErrors}
           />
           <InputField
             label="Xác nhận mật khẩu"
@@ -145,9 +166,7 @@ const Register = () => {
             }}
             error={errors.confirmedPassword}
           />
-          <ButtonSubmit type="submit" isLoading={loading}>
-            Submit
-          </ButtonSubmit>
+          <ButtonSubmit type="submit">Submit</ButtonSubmit>
           <p className="text-center text-gray-600 mt-4">
             Bạn đã có tài khoản?
             <span
@@ -157,9 +176,9 @@ const Register = () => {
               Đăng nhập
             </span>
           </p>
-          
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };
