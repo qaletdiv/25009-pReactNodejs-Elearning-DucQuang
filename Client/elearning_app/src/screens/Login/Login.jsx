@@ -2,23 +2,53 @@ import React from "react";
 import InputField from "../../components/InputField/InputField";
 import ButtonSubmit from "../../components/buttonSubmit/ButtonSubmit";
 import { useForm } from "react-hook-form";
-import { useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import { loginUser } from "../../redux/AuthSlice/AuthSlice";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Login = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError
+    setError,
   } = useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const onHandleSubmit = async (data) => {
     try {
       await dispatch(loginUser(data)).unwrap();
+      toast.success(
+        "Đăng nhập thành công! Bạn sẽ được chuyển tới trang chủ.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
     } catch (error) {
-       setError("password", { type: "server", message: error });
+      if (typeof error === "string" && error.includes("Mật khẩu không đúng")) {
+        setError("password", {
+          type: "server",
+          message: "Mật khẩu không đúng, vui lòng nhập lại",
+        });
+      } else {
+        toast.error(
+        "Không có kết nối mạng, vui lòng kiểm tra lại kết nối của bạn!",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
+      }
     }
   };
   const gotoRegister = () => {
@@ -94,9 +124,7 @@ const Login = () => {
             }}
             error={errors.password}
           />
-          <ButtonSubmit type="submit">
-            Submit
-          </ButtonSubmit>
+          <ButtonSubmit type="submit">Submit</ButtonSubmit>
           <p className="text-center text-gray-600 mt-4">
             Bạn chưa có tài khoản?
             <span
@@ -116,6 +144,7 @@ const Login = () => {
           </p>
         </form>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

@@ -5,6 +5,8 @@ import ButtonSubmit from "../../components/buttonSubmit/ButtonSubmit";
 import { useDispatch } from "react-redux";
 import { forgotPassword } from "../../redux/AuthSlice/AuthSlice";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const ForgotPassword = () => {
   const {
     register,
@@ -17,8 +19,36 @@ const ForgotPassword = () => {
   const onHandleSubmit = async (data) => {
     try {
       await dispatch(forgotPassword(data)).unwrap();
+      toast.success(
+        "Yêu cầu thay đổi mật khẩu đã được gửi, vui lòng kiểm tra email",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
     } catch (error) {
-      setError("email", { type: "server", message: error });
+      if (typeof error === "string" && error.includes("Email không tồn tại")) {
+        setError("email", {
+          type: "server",
+          message: "Email không tồn tại, vui lòng kiểm tra lại",
+        });
+      } else {
+        toast.error(
+          "Không có kết nối mạng, vui lòng kiểm tra lại kết nối của bạn!",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      }
     }
   };
   const backToLogin = () => {
@@ -56,9 +86,7 @@ const ForgotPassword = () => {
             }}
             error={errors.email}
           />
-          <ButtonSubmit type="submit">
-            Send
-          </ButtonSubmit>
+          <ButtonSubmit type="submit">Send</ButtonSubmit>
           <p className="text-center text-gray-600 mt-4">
             <span
               className="text-blue-600 hover:underline cursor-pointer"
@@ -69,6 +97,7 @@ const ForgotPassword = () => {
           </p>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };
