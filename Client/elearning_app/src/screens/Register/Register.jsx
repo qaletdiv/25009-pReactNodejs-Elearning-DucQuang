@@ -15,7 +15,6 @@ const Register = () => {
     watch,
     reset,
     setError,
-    clearErrors
   } = useForm();
   const dispatch = useDispatch();
   const password = watch("password");
@@ -49,7 +48,7 @@ const Register = () => {
           message: "Email đã tồn tại, vui lòng sử dụng email khác",
         });
       } else {
-        toast.error("Server đang có lỗi, vui lòng thử lại sau.", {
+        toast.error("Không có kết nối mạng, vui lòng kiểm tra lại kết nối của bạn!", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -100,7 +99,6 @@ const Register = () => {
               },
             }}
             error={errors.username}
-            clearErrors={clearErrors}
           />
           <InputField
             label="Email"
@@ -123,7 +121,6 @@ const Register = () => {
               },
             }}
             error={errors.email}
-            clearErrors={clearErrors}
           />
           <InputField
             label="Mật khẩu"
@@ -151,7 +148,6 @@ const Register = () => {
               },
             }}
             error={errors.password}
-            clearErrors={clearErrors}
           />
           <InputField
             label="Xác nhận mật khẩu"

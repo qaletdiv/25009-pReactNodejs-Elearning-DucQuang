@@ -76,7 +76,7 @@ export const forgotPassword = createAsyncThunk(
 
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async ({ newPassword, token}) => {
+  async ({ newPassword, token}, { rejectWithValue }) => {
     try {
       const response = await axiosClient.post("/users/reset-password", {
         newPassword,
@@ -84,7 +84,12 @@ export const resetPassword = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.log(error);
+      const msg =
+        error.response?.data?.errors?.[0]?.msg ||
+        error.response?.data?.message ||
+        error.message ||
+        "Đã xảy ra lỗi không xác định";
+      return rejectWithValue(msg);
     }
   }
 );
