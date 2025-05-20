@@ -39,11 +39,11 @@ export const loginUser = createAsyncThunk(
         email,
         password,
       });
-      const token = response.data.token;
+      const { token, user } = response.data;
       if (token) {
         localStorage.setItem("token", token);
       }
-      return token;
+      return {token, user};
     } catch (error) {
       const msg =
         error.response?.data?.errors?.[0]?.msg ||
@@ -112,10 +112,11 @@ const authSlice = createSlice({
         (state.loading = true), (state.error = null);
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        (state.loading = false), (state.accessToken = action.payload);
+        (state.loading = false), (state.accessToken = action.payload.token);
+        (state.users = action.payload.user)
       })
       .addCase(loginUser.rejected, (state, action) => {
-        (state.loading = true), (state.error = action.error.message);
+        (state.loading = false), (state.error = action.error.message);
       })
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;

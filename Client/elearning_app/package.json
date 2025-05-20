@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@hookform/resolvers": "^5.0.1",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "@mui/styled-engine-sc": "^7.1.0",
@@ -25,7 +26,9 @@
     "react-router-dom": "^7.6.0",
     "react-toastify": "^11.0.5",
     "styled-components": "^6.1.18",
-    "tailwindcss": "^4.1.6"
+    "swiper": "^11.2.6",
+    "tailwindcss": "^4.1.6",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

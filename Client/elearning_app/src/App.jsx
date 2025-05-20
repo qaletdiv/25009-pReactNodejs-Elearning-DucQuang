@@ -4,6 +4,7 @@ import Register from './screens/Register/Register'
 import Login from "./screens/Login/Login";
 import ForgotPassword from "./screens/ForgotPassword/ForgotPassword";
 import ResetPassword from "./screens/ResetPassword/ResetPassword";
+import Home from "./screens/Home/Home";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/login" element={<Login/>}></Route>
           <Route path="/forgot-password" element={<ForgotPassword/>}></Route>
           <Route path="/reset-password" element={<ResetPassword/>}></Route>
+          <Route path="/" element={<Home/>}></Route>
         </Routes>
       </BrowserRouter>
     </>

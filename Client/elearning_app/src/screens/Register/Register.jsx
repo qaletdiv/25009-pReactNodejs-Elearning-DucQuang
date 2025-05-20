@@ -7,17 +7,47 @@ import ButtonSubmit from "../../components/buttonSubmit/ButtonSubmit";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 const Register = () => {
+  const validationForm = Yup.object({
+    username: Yup.string()
+      .required("Username không được để trống")
+      .min(6, "Username phải có từ 6 ký tự")
+      .trim()
+      .matches(/^\S*$/, "Username không được chứa khoảng"),
+    email: Yup.string()
+      .required("Email không được để trống")
+      .trim()
+      .matches(/^\S*$/, "Email không được chứa khoảng")
+      .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Email không đúng định dạng"),
+    password: Yup.string()
+      .required("Password không được để trống")
+      .trim()
+      .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+      .matches(/^\S*$/, "Password không được chứa khoảng")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+        "Mật khẩu phải có ít nhất 1 chữ thường, 1 chữ in hoa và 1 số"
+      ),
+    confirmedPassword: Yup.string()
+      .required("Vui lòng xác nhận mật khẩu")
+      .test(
+        "passwords-match",
+        "Mật khẩu xác nhận không khớp",
+        function (value) {
+          return value === this.parent.password;
+        }
+      ),
+  });
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     reset,
     setError,
-  } = useForm();
+  } = useForm({ resolver: yupResolver(validationForm) });
   const dispatch = useDispatch();
-  const password = watch("password");
   const navigate = useNavigate();
   const goToLogin = () => {
     navigate("/login");
@@ -48,14 +78,17 @@ const Register = () => {
           message: "Email đã tồn tại, vui lòng sử dụng email khác",
         });
       } else {
-        toast.error("Không có kết nối mạng, vui lòng kiểm tra lại kết nối của bạn!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.error(
+          "Không có kết nối mạng, vui lòng kiểm tra lại kết nối của bạn!",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
       }
     }
   };
@@ -84,20 +117,6 @@ const Register = () => {
             name="username"
             placeholder="Nhập username"
             register={register}
-            validationRules={{
-              required: "Username không được để trống",
-              validate: {
-                noWhitespace: (value) =>
-                  value.trim() !== "" ||
-                  "Username không được chứa toàn khoảng trắng",
-                noSpacesInside: (value) =>
-                  !/\s/.test(value) || "Username không được chứa khoảng trắng",
-              },
-              minLength: {
-                value: 6,
-                message: "Username phải có ít nhất 6 ký tự",
-              },
-            }}
             error={errors.username}
           />
           <InputField
@@ -106,20 +125,6 @@ const Register = () => {
             name="email"
             placeholder="Nhập email"
             register={register}
-            validationRules={{
-              required: "Email không được để trống",
-              validate: {
-                noWhitespace: (value) =>
-                  value.trim() !== "" ||
-                  "Email không được chứa toàn khoảng trắng",
-                noSpacesInside: (value) =>
-                  !/\s/.test(value) || "Email không được chứa khoảng trắng",
-              },
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Email không hợp lệ",
-              },
-            }}
             error={errors.email}
           />
           <InputField
@@ -128,25 +133,6 @@ const Register = () => {
             name="password"
             placeholder="Nhập mật khẩu"
             register={register}
-            validationRules={{
-              required: "Password không được để trống",
-              validate: {
-                noWhitespace: (value) =>
-                  value.trim() !== "" ||
-                  "Password không được chứa toàn khoảng trắng",
-                noSpacesInside: (value) =>
-                  !/\s/.test(value) || "Password không được chứa khoảng trắng",
-              },
-              minLength: {
-                value: 8,
-                message: "Mật khẩu phải có ít nhất 8 ký tự",
-              },
-              pattern: {
-                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
-                message:
-                  "Mật khẩu phải có ít nhất 1 chữ thường, 1 chữ in hoa và 1 số",
-              },
-            }}
             error={errors.password}
           />
           <InputField
@@ -155,16 +141,11 @@ const Register = () => {
             name="confirmedPassword"
             placeholder="Xác nhận mật khẩu"
             register={register}
-            validationRules={{
-              required: "Vui lòng xác nhận mật khẩu",
-              validate: (value) =>
-                value === password || "Mật khẩu xác nhận không khớp",
-            }}
             error={errors.confirmedPassword}
           />
           <ButtonSubmit type="submit">Submit</ButtonSubmit>
-          <p className="text-center text-gray-600 mt-4">
-            Bạn đã có tài khoản?
+          <p className="text-center text-gray-600 mt-4 ">
+            Bạn đã có tài khoản?{" "}
             <span
               className="text-blue-600 hover:underline cursor-pointer"
               onClick={goToLogin}

@@ -30,6 +30,9 @@ const Login = () => {
           draggable: true,
         }
       );
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (error) {
       if (typeof error === "string" && error.includes("Mật khẩu không đúng")) {
         setError("password", {
@@ -127,6 +130,7 @@ const Login = () => {
           <ButtonSubmit type="submit">Submit</ButtonSubmit>
           <p className="text-center text-gray-600 mt-4">
             Bạn chưa có tài khoản?
+            {' '}
             <span
               className="text-blue-600 hover:underline cursor-pointer"
               onClick={gotoRegister}
@@ -136,7 +140,7 @@ const Login = () => {
           </p>
           <p className="text-center text-gray-600 mt-4">
             <span
-              className="text-blue-600 hover:underline cursor-pointer"
+              className="text-blue-600 hover:underline cursor-pointer "
               onClick={gotoForgotPassword}
             >
               Quên mật khẩu?
