@@ -1,15 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchInput from "../searchInput/SearchInput";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { getMe } from "../../redux/AuthSlice/AuthSlice";
+import { Link } from "react-router-dom";
+import { logout } from "../../redux/AuthSlice/AuthSlice";
 const Header = () => {
-  const {users} = useSelector(state => state.auth)
-  console.log("users:",users);
+  const { users } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(getMe());
+    }
+  }, [dispatch]);
+  const logOut = () => {
+    dispatch(logout());
+  };
+
   return (
     <div className="bg-blue-900 bg-opacity-50 h-18 w-full sticky top-0 flex justify-between items-center px-8 z-50">
       <div className="flex gap-4">
-        <span className="text-white font-bold text-3xl font-mono">Elearning</span>
+        <span className="text-white font-bold text-3xl font-mono">
+          Elearning
+        </span>
       </div>
 
       <div className="font-bold flex gap-6">
@@ -25,35 +40,61 @@ const Header = () => {
 
       <div className="flex gap-4 items-center relative z-50">
         <div className="relative group">
-          <span>Xin chào {users?.email}</span>
+          {users?.username && (
+            <span className="text-white font-mono font-bold">
+              Welcome, {users.username}
+            </span>
+          )}{" "}
           <AccountCircleIcon className="text-white cursor-pointer" />
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300">
             <ul className="py-2 text-gray-700">
-              <li>
-                <a href="/register" className="block px-4 py-2 hover:bg-gray-100">
-                  Đăng ký
-                </a>
-              </li>
-              <li>
-                <a href="/login" className="block px-4 py-2 hover:bg-gray-100">
-                  Đăng nhập
-                </a>
-              </li>
-              <li>
-                <a href="/login" className="block px-4 py-2 hover:bg-gray-100">
-                  Giỏ hàng
-                </a>
-              </li>
-              <li>
-                <a href="/profile" className="block px-4 py-2 hover:bg-gray-100">
-                  Hồ sơ
-                </a>
-              </li>
-              <li>
-                <a href="/logout" className="block px-4 py-2 hover:bg-gray-100">
-                  Đăng xuất
-                </a>
-              </li>
+              {!users ? (
+                <>
+                  <li>
+                    <Link
+                      to="/register"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Register
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/login"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Login
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      href="/cart"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Cart
+                    </Link>
+                  </li>
+                  <li>
+                    <a
+                      to="/profile"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      User Profile
+                    </a>
+                  </li>
+                  <li>
+                    <Link
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={logOut}
+                    >
+                      LogOut
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </div>
