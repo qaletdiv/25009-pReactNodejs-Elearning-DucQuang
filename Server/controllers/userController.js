@@ -162,3 +162,11 @@ exports.resetPassword = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getMe = async(req, res, next) => {
+  try {
+    res.status(200).json({user: req.user})
+  } catch (error) {
+    next(error)
+  }
+}
