@@ -20,7 +20,7 @@ const Header = () => {
   };
 
   return (
-    <div className="bg-blue-900 bg-opacity-50 h-18 w-full sticky top-0 flex justify-between items-center px-8 z-50">
+    <div className="bg-blue-900 bg-opacity-50 h-[72px] w-full sticky top-0 flex justify-between items-center px-8 z-50">
       <div className="flex gap-4">
         <span className="text-white font-bold text-3xl font-mono">
           Elearning
@@ -78,12 +78,20 @@ const Header = () => {
                     </Link>
                   </li>
                   <li>
-                    <a
+                    <Link
                       to="/profile"
                       className="block px-4 py-2 hover:bg-gray-100"
                     >
                       User Profile
-                    </a>
+                    </Link>
+                  </li>
+                   <li>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      User Courses
+                    </Link>
                   </li>
                   <li>
                     <Link
