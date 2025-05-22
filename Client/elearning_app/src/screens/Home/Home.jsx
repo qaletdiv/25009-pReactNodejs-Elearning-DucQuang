@@ -1,6 +1,7 @@
 import React from 'react'
 import Header from '../../components/Header/Header'
 import Slider from '../../components/Slider/Slider'
+import CourseList from '../../components/CourseList/CourseList'
 
 const Home = () => {
   return (
@@ -11,6 +12,9 @@ const Home = () => {
             </div>
             <div>
               <Slider/>
+            </div>
+            <div className='bg-blue-800'>
+              <CourseList/>
             </div>
         </div>
     </div>
