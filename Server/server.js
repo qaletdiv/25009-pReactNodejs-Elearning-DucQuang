@@ -4,11 +4,11 @@ const app = express();
 const db = require('./models');
 const rootRouter = require('./routes/index')
 const cors = require('cors')
-
+const path = require('path');
 app.use(cors());
 const PORT = 5000; 
 app.use(express.json())
-
+app.use(express.static(path.join(__dirname, 'public')))
 // Main API 
 app.use('/api/v1', rootRouter)
 

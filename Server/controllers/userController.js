@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, Enrollment, Course } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodeMailer = require("nodemailer");
@@ -170,3 +170,48 @@ exports.getMe = async(req, res, next) => {
     next(error)
   }
 }
+
+exports.userCourseEnroll = async (req, res, next) => {
+  try {
+    const userWithCourses = await User.findByPk(req.params.id, {
+      include: [
+        {
+          model: Course,
+          as: "courses",
+          through: {
+            attributes: ["courseId", "inProgess", "status"],
+          },
+        },
+      ],
+    });
+
+    if (!userWithCourses) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    res.status(200).json(userWithCourses);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.userCourseCreated = async (req, res, next) => {
+  try {
+    const userWithCourses = await User.findByPk(req.params.id, {
+      include: [
+        {
+          model: Course,
+          as: "Course"
+        }
+      ]
+    });
+
+    if (!userWithCourses) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+    res.status(200).json(userWithCourses);
+  } catch (error) {
+    next(error);
+  }
+}
+
