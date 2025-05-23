@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             Course.belongsTo(model.User, {
                 foreignKey: 'userId', 
                 as: 'user'
-            }), 
+            })
             Course.belongsTo(model.Category, {
                 foreignKey: 'categoryId', 
                 as: 'category'
