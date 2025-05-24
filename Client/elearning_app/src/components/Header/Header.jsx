@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import SearchInput from "../searchInput/SearchInput";
+import SearchInput from "../SearchInput/SearchInput";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useSelector, useDispatch } from "react-redux";
 import { getMe } from "../../redux/AuthSlice/AuthSlice";
@@ -28,14 +28,10 @@ const Header = () => {
       </div>
 
       <div className="font-bold flex gap-6">
-        <span className="text-white font-mono text-xl">Home</span>
-        <span className="text-white font-mono text-xl">Course</span>
-        <span className="text-white font-mono text-xl">About</span>
-        <span className="text-white font-mono text-xl">Contact Us</span>
-      </div>
-
-      <div className="gap-4">
-        <SearchInput />
+        <Link to="/"><span className="text-white font-mono text-xl">Home</span></Link>
+        <Link to="/courses"><span className="text-white font-mono text-xl">Course</span></Link>
+        <Link to="/"><span className="text-white font-mono text-xl">About</span></Link>
+        <Link to="/"><span className="text-white font-mono text-xl">Contact</span></Link>
       </div>
 
       <div className="flex gap-4 items-center relative z-50">
@@ -87,7 +83,7 @@ const Header = () => {
                   </li>
                    <li>
                     <Link
-                      to="/profile"
+                      to="/user-course-enroll"
                       className="block px-4 py-2 hover:bg-gray-100"
                     >
                       User Courses

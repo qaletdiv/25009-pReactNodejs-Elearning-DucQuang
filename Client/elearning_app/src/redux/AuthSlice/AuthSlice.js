@@ -6,6 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   accessToken: localStorage.getItem("accessToken") || null,
+  userCoursesEnroll: [],
 };
 
 export const registerUser = createAsyncThunk(
@@ -43,7 +44,7 @@ export const loginUser = createAsyncThunk(
       if (token) {
         localStorage.setItem("token", token);
       }
-      return {token, user};
+      return { token, user };
     } catch (error) {
       const msg =
         error.response?.data?.errors?.[0]?.msg ||
@@ -76,11 +77,11 @@ export const forgotPassword = createAsyncThunk(
 
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async ({ newPassword, token}, { rejectWithValue }) => {
+  async ({ newPassword, token }, { rejectWithValue }) => {
     try {
       const response = await axiosClient.post("/users/reset-password", {
         newPassword,
-        token
+        token,
       });
       return response.data;
     } catch (error) {
@@ -95,17 +96,18 @@ export const resetPassword = createAsyncThunk(
 );
 
 export const getMe = createAsyncThunk(
-  'auth/getMe', async( _ ,{rejectWithValue}) => {
+  "auth/getMe",
+  async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const repsonse = await axiosClient.get("/users/get-me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
       return repsonse.data.user;
     } catch (error) {
-        const msg =
+      const msg =
         error.response?.data?.errors?.[0]?.msg ||
         error.response?.data?.message ||
         error.message ||
@@ -113,18 +115,37 @@ export const getMe = createAsyncThunk(
       return rejectWithValue(msg);
     }
   }
-)
+);
 
-
+export const userCourses = createAsyncThunk("auth/userCourses", async (_,  { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("Không tìm thấy token");
+    }
+    const response = await axiosClient.get("/users/user-course-enroll", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    return response.data
+  } catch (error) {
+     const msg =
+        error.response?.data?.message ||
+        error.message ||
+        "Đã xảy ra lỗi không xác định";
+      return rejectWithValue(msg);
+  }
+});
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
-   reducers: {
+  reducers: {
     logout: (state) => {
       state.token = null;
-      localStorage.removeItem('token');
-      state.users = null
+      localStorage.removeItem("token");
+      state.users = null;
     },
   },
   extraReducers: (bulider) => {
@@ -143,7 +164,6 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         (state.loading = false), (state.accessToken = action.payload.token);
-        //(state.users = action.payload.user)
       })
       .addCase(loginUser.rejected, (state, action) => {
         (state.loading = false), (state.error = action.error.message);
@@ -160,20 +180,33 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-       .addCase(getMe.pending, (state) => {
+      .addCase(getMe.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(getMe.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.users = action.payload
+        state.users = action.payload;
       })
       .addCase(getMe.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-      });
-
+        state.error = state.error = action.error.message
+      })
+       .addCase(userCourses.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(userCourses.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.userCoursesEnroll = action.payload;
+      })
+      .addCase(userCourses.rejected, (state, action) => {
+        state.loading = false;
+        state.error = state.error =  action.payload;
+      })
+      ;
   },
 });
 export const { logout } = authSlice.actions;

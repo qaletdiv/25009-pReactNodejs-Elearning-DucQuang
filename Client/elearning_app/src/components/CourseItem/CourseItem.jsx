@@ -1,47 +1,31 @@
-import * as React from "react";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import React from "react";
 
 export default function MediaCard({ course, base_url }) {
   return (
-    <Card
-      sx={{
-        width: 300,
-        height: 400,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        boxShadow: 3,
-      }}
-    >
-      <CardMedia
-        sx={{
-          height: 140,
-          backgroundColor: "#f0f0f0", 
-          objectFit: "contain",
-        }}
-        image={`${base_url}/${course.image}`}
-        title={course.title}
+    <div className="w-[300px] h-[400px] bg-white rounded-lg shadow-md flex flex-col justify-between">
+      <img
+        src={`${base_url}/${course.image}`}
+        alt={course.title}
+        className="w-full h-[140px] object-contain bg-gray-200 rounded-t-lg"
       />
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Typography gutterBottom variant="h5" component="div">
-          {course.title}
-        </Typography>
-        <Typography gutterBottom variant="h5" component="div">
+
+      
+      <div className="p-4 flex-grow">
+        <h2 className="text-xl font-semibold text-gray-800">{course.title}</h2>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">
           {course.price}$
-        </Typography>
-         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          {course.description}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Button size="small">Add to cart</Button>
-        <Button size="small">Detail</Button>
-      </CardActions>
-    </Card>
+        </h3>
+        <p className="text-gray-600 text-sm">{course.description}</p>
+      </div>
+
+      <div className="flex justify-between p-4">
+        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+          Add to cart
+        </button>
+        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+          Detail
+        </button>
+      </div>
+    </div>
   );
 }

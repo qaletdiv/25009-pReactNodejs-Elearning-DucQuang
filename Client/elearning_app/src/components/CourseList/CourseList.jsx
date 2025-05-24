@@ -13,7 +13,7 @@ const CourseList = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-center mt-6 text-3xl font-mono text-white ">
+      <h1 className="text-center mt-6 text-3xl font-mono text-blue-900 ">
         Courses
       </h1>
 

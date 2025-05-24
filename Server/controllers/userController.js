@@ -173,7 +173,7 @@ exports.getMe = async(req, res, next) => {
 
 exports.userCourseEnroll = async (req, res, next) => {
   try {
-    const userWithCourses = await User.findByPk(req.params.id, {
+    const userWithCourses = await User.findByPk(req.user.id, {
       include: [
         {
           model: Course,
@@ -195,23 +195,4 @@ exports.userCourseEnroll = async (req, res, next) => {
   }
 };
 
-exports.userCourseCreated = async (req, res, next) => {
-  try {
-    const userWithCourses = await User.findByPk(req.params.id, {
-      include: [
-        {
-          model: Course,
-          as: "Course"
-        }
-      ]
-    });
-
-    if (!userWithCourses) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    }
-    res.status(200).json(userWithCourses);
-  } catch (error) {
-    next(error);
-  }
-}
 

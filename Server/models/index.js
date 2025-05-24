@@ -15,7 +15,7 @@ db.User = require('./user')(sequelize, Sequelize)
 db.Category = require('./category')(sequelize, Sequelize)
 db.Enrollment = require('./enrollment')(sequelize, Sequelize)
 db.Course = require('./course')(sequelize, Sequelize)
-
+db.Level = require('./level')(sequelize, Sequelize)
 Object.keys(db).forEach((modelName) => {
     if(db[modelName].associate) {
         db[modelName].associate(db);
