@@ -13,9 +13,6 @@ const Home = () => {
             <div>
               <Slider/>
             </div>
-            <div className='bg-blue-800'>
-              <CourseList/>
-            </div>
         </div>
     </div>
   )
