@@ -10,6 +10,5 @@ userRouter.post('/register',registerValidationRule(), validationErrorHandler, us
 userRouter.post('/login', loginValidationRule(), validationErrorHandler, userController.login )
 userRouter.post('/forgot-password',emailValidationRule(),validationErrorHandler, userController.forgotPassword)
 userRouter.post('/reset-password',passwordValidationRule(), validationErrorHandler, userController.resetPassword)
-userRouter.get('/user-course-enroll/:id',authenticateToken, userController.userCourseEnroll)
-userRouter.get('/user-course-created/:id', userController.userCourseCreated)
+userRouter.get('/user-course-enroll/',authenticateToken, userController.userCourseEnroll)
 module.exports = userRouter
