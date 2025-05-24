@@ -1,8 +1,13 @@
-const { Course } = require("../models");
+const { Course, Category, Level } = require("../models");
 
 exports.getAllCourses = async (req, res, next) => {
   try {
-    const courses = await Course.findAll();
+    const courses = await Course.findAll({
+      include: [
+        {model: Category, as: "category" }, 
+        {model: Level, as: 'level'}
+      ]
+    });
     res.status(200).json(courses);
   } catch (error) {
     next(error);
