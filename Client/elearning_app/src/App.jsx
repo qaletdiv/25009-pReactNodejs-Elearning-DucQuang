@@ -7,6 +7,7 @@ import ResetPassword from "./screens/ResetPassword/ResetPassword";
 import Home from "./screens/Home/Home";
 import UserCourse from "./screens/userCourse/userCourse";
 import Course from "./screens/Course/Course";
+import CourseDetail from "./screens/CourseDetail/CourseDetail";
 
 function App() {
   return (
@@ -19,7 +20,8 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword/>}></Route>
           <Route path="/" element={<Home/>}></Route>
           <Route path="/user-course-enroll" element={<UserCourse/>}></Route>
-           <Route path="/courses" element={<Course/>}></Route>
+          <Route path="/courses" element={<Course/>}></Route>
+          <Route path="/courses/:id" element={<CourseDetail/>}></Route>
         </Routes>
       </BrowserRouter>
     </>

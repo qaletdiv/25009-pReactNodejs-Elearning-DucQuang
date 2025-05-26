@@ -21,7 +21,7 @@ const Header = () => {
 
   return (
     <div className="bg-blue-900 bg-opacity-50 h-[72px] w-full sticky top-0 flex justify-between items-center px-8 z-50">
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <span className="text-white font-bold text-3xl font-mono">
           Elearning
         </span>

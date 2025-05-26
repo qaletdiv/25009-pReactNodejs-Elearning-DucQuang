@@ -16,6 +16,9 @@ db.Category = require('./category')(sequelize, Sequelize)
 db.Enrollment = require('./enrollment')(sequelize, Sequelize)
 db.Course = require('./course')(sequelize, Sequelize)
 db.Level = require('./level')(sequelize, Sequelize)
+db.Review = require('./review')(sequelize, Sequelize)
+db.SectionSource = require('./sectionsource')(sequelize, Sequelize)
+db.Section = require('./section')(sequelize, Sequelize)
 Object.keys(db).forEach((modelName) => {
     if(db[modelName].associate) {
         db[modelName].associate(db);
