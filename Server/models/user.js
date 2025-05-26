@@ -15,6 +15,12 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "courseId",
         as: "courses",
       });
+      User.belongsToMany(model.Course, {
+        through: model.Review,
+        foreignKey: "userId",
+        otherKey: "courseId",
+        as: "courses-review",
+      });
     }
   }
   User.init(
