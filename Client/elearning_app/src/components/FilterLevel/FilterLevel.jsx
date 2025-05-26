@@ -1,32 +1,47 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchLevels,
+} from "../../redux/LevelSlice/LevelSlice";
+import { setLevelFilter } from "../../redux/CourseSlice/CourseSlice";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Box,
+} from "@mui/material";
 
-export default function FilterLevel() {
-  const [age, setAge] = React.useState("");
+const FilterLevel = () => {
+  const dispatch = useDispatch();
+  const { levels, loading, error } = useSelector((state) => state.level);
+  const { levelFilter } = useSelector((state) => state.course);
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
+  useEffect(() => {
+    if (!levels.length && !loading && !error) {
+      dispatch(fetchLevels());
+    }
+  }, [dispatch, levels.length, loading, error]);
+
+  const handleChange = (e) => {
+    dispatch(setLevelFilter(e.target.value));
   };
 
   return (
-    <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Level</InputLabel>
+    <Box sx={{ minWidth: 120, width: { xs: "100%", sm: "auto" } }}>
+      <FormControl fullWidth error={!!error} disabled={loading}>
+        <InputLabel id="level-filter-label">Cấp độ</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={age}
-          label="Level"
+          labelId="level-filter-label"
+          value={levelFilter || ""}
+          label="Cấp độ"
           onChange={handleChange}
           sx={{
             "& .MuiSelect-select": {
               padding: "8px",
-              height: "40px", 
+              height: "40px",
             },
+            borderRadius: "9999px",
           }}
           MenuProps={{
             PaperProps: {
@@ -40,11 +55,17 @@ export default function FilterLevel() {
             },
           }}
         >
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
+          <MenuItem value="">Tất cả cấp độ</MenuItem>
+          {levels.map((level) => (
+            <MenuItem key={level.id} value={String(level.id)}>
+              {level.level}
+            </MenuItem>
+          ))}
         </Select>
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       </FormControl>
     </Box>
   );
-}
+};
+
+export default FilterLevel;

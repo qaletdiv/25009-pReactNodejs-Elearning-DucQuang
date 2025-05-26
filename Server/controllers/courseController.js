@@ -1,13 +1,36 @@
 const { Course, Category, Level } = require("../models");
-
+const { Op } = require("sequelize");
+// exports.getAllCourses = async (req, res, next) => {
+//   try {
+//     const courses = await Course.findAll({
+//       include: [
+//         { model: Category, as: "category" },
+//         { model: Level, as: "level" },
+//       ],
+//       where: {
+//         title: { [Op.like]: `%${req.query.courseName}%` },
+//       },
+//     });
+//     res.status(200).json(courses);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 exports.getAllCourses = async (req, res, next) => {
   try {
+    const courseName = req.query.courseName || '';
+    const whereCondition = courseName.trim()
+      ? { title: { [Op.like]: `%${courseName}%` } }
+      : {};
+
     const courses = await Course.findAll({
       include: [
-        {model: Category, as: "category" }, 
-        {model: Level, as: 'level'}
-      ]
+        { model: Category, as: "category" },
+        { model: Level, as: "level" },
+      ],
+      where: whereCondition,
     });
+
     res.status(200).json(courses);
   } catch (error) {
     next(error);
@@ -35,10 +58,17 @@ exports.createNewCourse = async (req, res, next) => {
   try {
     const imagePath = `uploads/${req.file.processedFileName}`;
     const newCourse = await Course.create({
-        ...req.body, image: imagePath
-    })
-    res.status(201).json({message: "Tạo khóa học thành công", course: newCourse, status: "success"})
+      ...req.body,
+      image: imagePath,
+    });
+    res
+      .status(201)
+      .json({
+        message: "Tạo khóa học thành công",
+        course: newCourse,
+        status: "success",
+      });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };

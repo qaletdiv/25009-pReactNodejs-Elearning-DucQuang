@@ -1,50 +1,69 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from "../../redux/CategorySlice/CategorySlice";
+import { setCategoryFilter } from "../../redux/CourseSlice/CourseSlice";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Box,
+} from "@mui/material";
 
-export default function FilterCategory() {
-  const [age, setAge] = React.useState("");
+const FilterCategory = () => {
+  const dispatch = useDispatch();
+  const { categories, loading, error } = useSelector((state) => state.category);
+  const { categoryFilter } = useSelector((state) => state.course);
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
+  useEffect(() => {
+    if (!categories.length && !loading && !error) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, categories.length, loading, error]);
+
+  const handleChange = (e) => {
+    dispatch(setCategoryFilter(e.target.value));
   };
 
   return (
-    <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Category</InputLabel>
+    <Box sx={{ minWidth: 120, width: { xs: "100%", sm: "auto" } }}>
+      <FormControl fullWidth error={!!error} disabled={loading}>
+        <InputLabel id="category-filter-label">Danh mục</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={age}
-          label="Category"
+          labelId="category-filter-label"
+          value={categoryFilter || ""}
+          label="Danh mục"
           onChange={handleChange}
           sx={{
             "& .MuiSelect-select": {
               padding: "8px",
-              height: "40px", 
+              height: "40px",
             },
+            borderRadius: "9999px",
           }}
           MenuProps={{
             PaperProps: {
               sx: {
                 maxHeight: 200,
                 "& .MuiMenuItem-root": {
-                  padding: "4px 8px", 
+                  padding: "4px 8px",
                   fontSize: "14px",
                 },
               },
             },
           }}
         >
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
+          <MenuItem value="">Tất cả danh mục</MenuItem>
+          {categories.map((cate) => (
+            <MenuItem key={cate.id} value={String(cate.id)}>
+              {cate.name}
+            </MenuItem>
+          ))}
         </Select>
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       </FormControl>
     </Box>
   );
-}
+};
+
+export default FilterCategory;

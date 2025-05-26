@@ -4,5 +4,6 @@ const levelController = require('../controllers/levelController');
 
 
 levelRouter.post('/', levelController.createNewLevel)
+levelRouter.get('/', levelController.getAllLevel)
 
 module.exports = levelRouter
