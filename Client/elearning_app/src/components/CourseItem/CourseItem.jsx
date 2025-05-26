@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 export default function MediaCard({ course, base_url }) {
   return (
     <div className="w-[300px] h-[400px] bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
@@ -34,9 +34,9 @@ export default function MediaCard({ course, base_url }) {
           <button className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200">
             Add to cart
           </button>
-          <button className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200">
+          <Link to={`/courses/${course.id}`} className=" flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200" >
             Detail
-          </button>
+          </Link>
         </div>
       </div>
     </div>

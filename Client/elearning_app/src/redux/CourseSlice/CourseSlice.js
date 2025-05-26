@@ -6,7 +6,8 @@ const initialState = {
   loading: false,
   error: null,
   categoryFilter: "All", 
-  levelFilter: "All"
+  levelFilter: "All",
+  course: null
 };
 
 export const fetchCourse = createAsyncThunk("course/fetchCourse", async () => {
@@ -31,6 +32,15 @@ export const searchCourses = createAsyncThunk(
     }
   }
 );
+
+export const fetchCourseById = createAsyncThunk("course/fetchCourseById", async(id) => {
+  try {
+    const response = await axiosClient.get(`/courses/${id}`)
+    return response.data
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 
 const courseSlice = createSlice({
@@ -66,6 +76,19 @@ const courseSlice = createSlice({
         state.error = null;
       })
       .addCase(searchCourses.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchCourseById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCourseById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.course = action.payload.course;
+        state.error = null;
+      })
+      .addCase(fetchCourseById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
