@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import UserCourseList from "../../components/UserCourseList/UserCourseList";
 import { useSelector, useDispatch } from "react-redux";
 import { userCourses } from "../../redux/AuthSlice/AuthSlice";
+import Header from "../../components/Header/Header";
 const UserCourse = () => {
   const { userCoursesEnroll, loading, error } = useSelector(
     (state) => state.auth
@@ -11,10 +12,10 @@ const UserCourse = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    if (token && (!userCoursesEnroll || userCoursesEnroll.length === 0)) {
       dispatch(userCourses());
     }
-  }, [dispatch]);
+  },[dispatch, userCoursesEnroll]);
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>Lỗi: {error}</div>;
@@ -25,7 +26,8 @@ const UserCourse = () => {
   return (
     <>
       <div>
-        <div className="flex justify-around items-center text-5xl text-center font-mono bg-blue-800 h-20 text-white font-bold">Your Course</div>
+        <Header/>
+        <h1 className="text-2xl font-bold text-center my-4">Khóa học của bạn</h1>
         <UserCourseList userCourse={userCoursesEnroll}/>
       </div>
     </>

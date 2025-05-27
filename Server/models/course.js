@@ -23,11 +23,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "levelId",
         as: "level",
       });
-      Course.belongsToMany(model.User, {
-        through: model.Review,
+      Course.hasMany(model.Review, {
         foreignKey: "courseId",
-        otherKey: "userId",
-        as: "users-review",
+        as: "reviews",
       });
       Course.hasMany(model.Section, {
         foreignKey: "courseId",
