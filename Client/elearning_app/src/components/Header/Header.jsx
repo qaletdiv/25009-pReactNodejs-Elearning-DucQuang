@@ -11,7 +11,7 @@ const Header = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    if (token && !users?.username) {
       dispatch(getMe());
     }
   }, [dispatch]);

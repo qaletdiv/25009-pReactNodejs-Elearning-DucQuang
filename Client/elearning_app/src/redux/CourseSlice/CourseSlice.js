@@ -7,12 +7,18 @@ const initialState = {
   error: null,
   categoryFilter: "All", 
   levelFilter: "All",
-  course: null
+  course: null, 
+  page: 1,
+  limit: 8, 
+  currentPage: 1,
+  totalPages: null,
+  totalCourses: null
 };
 
-export const fetchCourse = createAsyncThunk("course/fetchCourse", async () => {
+export const fetchCourse = createAsyncThunk("course/fetchCourse", async ({page, limit}) => {
   try {
-    const response = await axiosClient.get("/courses");
+    const response = await axiosClient.get(`/courses/?page=${page}&limit=${limit}`);
+    console.log(response);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -53,6 +59,13 @@ const courseSlice = createSlice({
     setLevelFilter(state, action) {
         state.levelFilter = action.payload
     }, 
+    setPage(state, action) {
+      console.log("setPage",action.payload);
+      state.page = action.payload;
+    },
+    setLimit(state, action) {
+      state.limit = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -60,7 +73,11 @@ const courseSlice = createSlice({
         (state.loading = true), (state.erorr = null);
       })
       .addCase(fetchCourse.fulfilled, (state, action) => {
-        (state.loading = false), (state.courses = action.payload);
+        (state.loading = false),
+        state.courses = action.payload.courses;
+        state.totalPages = action.payload.totalPages;
+        state.totalCourses = action.payload.totalCourses;
+        state.currentPage = action.payload.currentPage;
         state.error = null;
       })
       .addCase(fetchCourse.rejected, (state) => {
@@ -95,5 +112,5 @@ const courseSlice = createSlice({
   },
 });
 
-export const {setLevelFilter, setCategoryFilter} = courseSlice.actions
+export const {setLevelFilter, setCategoryFilter, setLimit, setPage} = courseSlice.actions
 export default courseSlice.reducer;
