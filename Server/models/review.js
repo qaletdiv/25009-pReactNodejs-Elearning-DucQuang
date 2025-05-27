@@ -5,7 +5,14 @@ const course = require("./course");
 module.exports = (sequelize, DataTypes) => {
   class Review extends Model {
     static associate(model) {
-     
+        Review.belongsTo(model.Course, {
+          foreignKey: "courseId",
+          as: "course",
+        });
+        Review.belongsTo(model.User, {
+          foreignKey: "userId",
+          as: "user",
+        });
     }
   }
   Review.init(
@@ -16,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: {
         type: DataTypes.TEXT  
       }, 
-      userId: {
+       userId: {
         type: DataTypes.INTEGER,
       }, 
       courseId: {

@@ -7,5 +7,5 @@ const authenticateToken = require('../middlewares/authenticateToken/authenticate
 
 reviewRouter.post('/',authenticateToken, reviewController.createReview);
 reviewRouter.get('/', reviewController.getReview);
-
+reviewRouter.get('/:id', reviewController.getReviewById);
 module.exports = reviewRouter

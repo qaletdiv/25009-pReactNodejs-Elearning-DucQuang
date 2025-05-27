@@ -1,4 +1,4 @@
-const { Review } = require("../models");
+const { Review, User} = require("../models");
 
 exports.createReview = async (req, res, next) => {
   try {
@@ -28,3 +28,24 @@ exports.getReview= async (req, res, next) => {
   }
 };
 
+exports.getReviewById = async (req, res, next) => {
+  try {
+    const courseReview = await Review.findAll({
+        where: {courseId: req.params.id},
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["id","username"],
+          },
+        ],
+    });
+    console.log(courseReview);
+    if (!courseReview) {
+      return res.status(404).json({ message: "Không tìm thấy đánh giá" });
+    }
+    res.status(200).json({ courseReview });
+  } catch (error) {
+    next(error);
+  }
+}

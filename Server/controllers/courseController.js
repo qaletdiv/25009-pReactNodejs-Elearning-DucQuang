@@ -1,4 +1,4 @@
-const { Course, Category, Level } = require("../models");
+const { Course, Category, Level, Section, Review, User } = require("../models");
 const { Op } = require("sequelize");
 // exports.getAllCourses = async (req, res, next) => {
 //   try {
@@ -18,20 +18,27 @@ const { Op } = require("sequelize");
 // };
 exports.getAllCourses = async (req, res, next) => {
   try {
+    const {
+      page = 1,
+      limit = 8
+    } = req.query;
+    const offset = (page - 1) * limit;
     const courseName = req.query.courseName || '';
     const whereCondition = courseName.trim()
       ? { title: { [Op.like]: `%${courseName}%` } }
       : {};
 
-    const courses = await Course.findAll({
+    const {rows: courses, count: totalCourses} = await Course.findAndCountAll({
       include: [
         { model: Category, as: "category" },
         { model: Level, as: "level" },
       ],
+      limit: parseInt(limit) || 8,
+      offset: parseInt(offset) || 0,
       where: whereCondition,
     });
-
-    res.status(200).json(courses);
+    const totalPages = Math.ceil(totalCourses / limit);
+    res.status(200).json({courses, totalPages, currentPage: parseInt(page), totalCourses});
   } catch (error) {
     next(error);
   }
@@ -39,7 +46,12 @@ exports.getAllCourses = async (req, res, next) => {
 
 exports.getCourseById = async (req, res, next) => {
   try {
-    const course = await Course.findByPk(req.params.id);
+    const course = await Course.findByPk(req.params.id, {
+      include: [
+        {model: Section, as: "sections"},
+        {model: Review, as: "reviews", include: [{model: User, as: "user" ,attributes: ["id", "username"]}]},
+      ]
+    });
     if (!course) {
       return res.status(404).json({ message: "Không tìm thấy khóa học" });
     }
