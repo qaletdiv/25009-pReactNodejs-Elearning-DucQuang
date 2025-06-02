@@ -60,35 +60,60 @@ const CourseDetail = () => {
             </div>
 
             <div className="mt-6">
-              <h1 className="text-2xl font-mono mb-4">Đánh Giá & Bình Luận</h1>
-              {course.reviews.map((review) => (
-                <div key={review.id} className="p-4 border-b">
-                  <div className="flex items-center mb-2">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <span
-                        key={index}
-                        className={
-                          index < review.rating
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      >
-                        ★
-                      </span>
+              {(() => {
+                const averageRating =
+                  course.reviews.length > 0
+                    ? (
+                        course.reviews.reduce(
+                          (sum, review) => sum + review.rating,
+                          0
+                        ) / course.reviews.length
+                      ).toFixed(1)
+                    : 0;
+
+                return (
+                  <>
+                    <h1 className="text-2xl font-mono mb-4">
+                      Đánh Giá & Bình Luận ({averageRating} ★)
+                    </h1>
+
+                    {course.reviews.map((review) => (
+                      <div key={review.id} className="p-4 border-b">
+                        <div className="flex items-center mb-2">
+                          {Array.from({ length: 5 }).map((_, index) => (
+                            <span
+                              key={index}
+                              className={
+                                index < review.rating
+                                  ? "text-yellow-400"
+                                  : "text-gray-300"
+                              }
+                            >
+                              ★
+                            </span>
+                          ))}
+                          <span className="ml-2 text-sm text-gray-500">
+                            ({review.rating} sao)
+                          </span>
+                        </div>
+                        <p className="text-gray-600">{review.user.username}</p>
+                        <p className="text-gray-600">{review.comment}</p>
+                      </div>
                     ))}
-                    <span className="ml-2 text-sm text-gray-500">
-                      ({review.rating} sao)
-                    </span>
-                  </div>
-                  <p className="text-gray-600">{review.user.username}</p>
-                  <p className="text-gray-600">{review.comment}</p>
-                </div>
-              ))}
+                  </>
+                );
+              })()}
             </div>
 
             <div className="mt-6">
               <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300">
                 Tham gia khóa học
+              </button>
+            </div>
+
+            <div className="mt-6">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300">
+                Thêm giỏ hàng
               </button>
             </div>
           </div>

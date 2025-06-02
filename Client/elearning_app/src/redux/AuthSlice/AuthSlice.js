@@ -5,8 +5,10 @@ const initialState = {
   users: null,
   loading: false,
   error: null,
-  accessToken: localStorage.getItem("accessToken") || null,
+  accessToken: localStorage.getItem("token") || null,
   userCoursesEnroll: [],
+  courseSections: [],
+  videosBySection: [],
 };
 
 export const registerUser = createAsyncThunk(
@@ -24,9 +26,6 @@ export const registerUser = createAsyncThunk(
         error.response?.data?.errors?.[0]?.msg ||
         error.response?.data?.message ||
         error.message;
-      if (msg.includes("Email đã tồn tại")) {
-        return rejectWithValue(msg);
-      }
       return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
@@ -49,28 +48,24 @@ export const loginUser = createAsyncThunk(
       const msg =
         error.response?.data?.errors?.[0]?.msg ||
         error.response?.data?.message ||
-        error.message ||
-        "Đã xảy ra lỗi không xác định";
-      return rejectWithValue(msg);
+        error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
 );
 
 export const forgotPassword = createAsyncThunk(
-  "auth/forgotPassowrd",
+  "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post("/users/forgot-password", {
-        email,
-      });
+      const response = await axiosClient.post("/users/forgot-password", { email });
       return response.data;
     } catch (error) {
       const msg =
         error.response?.data?.errors?.[0]?.msg ||
         error.response?.data?.message ||
-        error.message ||
-        "Đã xảy ra lỗi không xác định";
-      return rejectWithValue(msg);
+        error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
 );
@@ -88,9 +83,8 @@ export const resetPassword = createAsyncThunk(
       const msg =
         error.response?.data?.errors?.[0]?.msg ||
         error.response?.data?.message ||
-        error.message ||
-        "Đã xảy ra lỗi không xác định";
-      return rejectWithValue(msg);
+        error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
 );
@@ -100,73 +94,119 @@ export const getMe = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const repsonse = await axiosClient.get("/users/get-me", {
+      const response = await axiosClient.get("/users/get-me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      return repsonse.data.user;
+      return response.data.user;
     } catch (error) {
       const msg =
         error.response?.data?.errors?.[0]?.msg ||
         error.response?.data?.message ||
-        error.message ||
-        "Đã xảy ra lỗi không xác định";
-      return rejectWithValue(msg);
+        error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
 );
 
-export const userCourses = createAsyncThunk("auth/userCourses", async (_,  { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("Không tìm thấy token");
-    }
-    const response = await axiosClient.get("/users/user-course-enroll", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    return response.data
-  } catch (error) {
-     const msg =
+export const userCourses = createAsyncThunk(
+  "auth/userCourses",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosClient.get("/users/user-course-enroll", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      const msg =
         error.response?.data?.message ||
-        error.message ||
-        "Đã xảy ra lỗi không xác định";
-      return rejectWithValue(msg);
+        error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
   }
-});
+);
+
+
+export const getAllSectionByUserCourse =createAsyncThunk(
+  "auth/getAllSectionByUserCourse", async ({courseId}, { rejectWithValue }) => {
+    try {   
+      const token = localStorage.getItem("token");
+      const response = await axiosClient.get(`/users/user-course-enroll/course/${courseId}/sections/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      const msg =
+        error.response?.data?.message ||
+        error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
+
+export const getVideosBySection = createAsyncThunk(
+  "auth/getVideosBySection", async ({courseId, sectionId}, { rejectWithValue }) => { 
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosClient.get(`/users/user-course-enroll/course/${courseId}/section/${sectionId}/videos`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      const msg =
+        error.response?.data?.message ||
+        error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
-      state.token = null;
-      localStorage.removeItem("token");
+      state.userCoursesEnroll = [];
+      state.accessToken = null;
       state.users = null;
+      localStorage.removeItem("token");
     },
   },
-  extraReducers: (bulider) => {
-    bulider
+  extraReducers: (builder) => {
+    builder
       .addCase(registerUser.pending, (state) => {
-        (state.loading = true), (state.error = null);
+        state.loading = true;
+        state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        (state.loading = false), (state.users = action.payload);
+        state.loading = false;
+        state.users = action.payload;
       })
       .addCase(registerUser.rejected, (state, action) => {
-        (state.loading = false), (state.error = action.payload);
+        state.loading = false;
+        state.error = action.payload;
       })
       .addCase(loginUser.pending, (state) => {
-        (state.loading = true), (state.error = null);
+        state.loading = true;
+        state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        (state.loading = false), (state.accessToken = action.payload.token);
+        state.loading = false;
+        state.accessToken = action.payload.token;
+        state.users = action.payload.user;
       })
       .addCase(loginUser.rejected, (state, action) => {
-        (state.loading = false), (state.error = action.error.message);
+        state.loading = false;
+        state.error = action.payload;
       })
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
@@ -186,28 +226,50 @@ const authSlice = createSlice({
       })
       .addCase(getMe.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
         state.users = action.payload;
       })
       .addCase(getMe.rejected, (state, action) => {
         state.loading = false;
-        state.error = state.error = action.error.message
+        state.error = action.payload;
       })
-       .addCase(userCourses.pending, (state) => {
+      .addCase(userCourses.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(userCourses.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
         state.userCoursesEnroll = action.payload;
       })
       .addCase(userCourses.rejected, (state, action) => {
         state.loading = false;
-        state.error = state.error =  action.payload;
+        state.error = action.payload;
       })
-      ;
+      .addCase(getAllSectionByUserCourse.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllSectionByUserCourse.fulfilled, (state, action) => {
+        state.loading = false;
+        state.courseSections = action.payload.course.courses
+      })
+      .addCase(getAllSectionByUserCourse.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getVideosBySection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getVideosBySection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.videosBySection = action.payload;
+      })
+      .addCase(getVideosBySection.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
+
 export const { logout } = authSlice.actions;
 export default authSlice.reducer;

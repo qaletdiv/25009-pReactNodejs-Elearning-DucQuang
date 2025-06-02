@@ -11,15 +11,14 @@ const CourseList = () => {
   );
   const base_url = import.meta.env.VITE_API_URL_BE;
   const handleChange = (event, value) => {
-    console.log(value);
     dispatch(setPage(value));
   };
-  console.log("page", page);
+  
   useEffect(() => {
     dispatch(fetchCourse({page, limit}));
-  }, [dispatch, page]);
+  }, [dispatch, page, levelFilter, categoryFilter]);
 
-  console.log("courses", courses);
+ 
   const filteredCourses = courses.filter((course) => {
     const matchCategory =
       !categoryFilter || categoryFilter === "All"
