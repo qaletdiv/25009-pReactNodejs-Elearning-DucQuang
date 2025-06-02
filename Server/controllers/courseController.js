@@ -1,21 +1,5 @@
 const { Course, Category, Level, Section, Review, User } = require("../models");
 const { Op } = require("sequelize");
-// exports.getAllCourses = async (req, res, next) => {
-//   try {
-//     const courses = await Course.findAll({
-//       include: [
-//         { model: Category, as: "category" },
-//         { model: Level, as: "level" },
-//       ],
-//       where: {
-//         title: { [Op.like]: `%${req.query.courseName}%` },
-//       },
-//     });
-//     res.status(200).json(courses);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 exports.getAllCourses = async (req, res, next) => {
   try {
     const {
