@@ -1,4 +1,4 @@
-const { User, Enrollment, Course } = require("../models");
+const { User, Enrollment, Course, Section, Video } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodeMailer = require("nodemailer");
@@ -195,4 +195,73 @@ exports.userCourseEnroll = async (req, res, next) => {
   }
 };
 
+
+exports.userCourseEnrollBySection = async (req, res, next) => {
+  const  {courseId}  = req.params;
+  const userId = req.user.id;
+  try {
+    const course = await User.findByPk(userId, {
+      include: [
+        {
+          model: Course,
+          as: "courses",
+          where: { id: courseId },
+          through: { attributes: [] }, 
+          include: [
+            {
+              model: Section,
+              as: "sections",
+            },
+          ],
+        },
+      ],
+    });
+    if (!course) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy khóa học mà người dùng đã đăng ký" });
+    }
+    res.status(200).json({ course });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getVideoBySectionUserCourse = async(req, res, next) => {
+  try {
+    const { courseId, sectionId } = req.params;
+    const userId = req.user.id;
+    const enrollment = await User.findByPk(userId, {
+      include: [
+        {
+          model: Course,
+          as: 'courses',
+          where: { id: courseId },
+        },
+      ],
+    });
+    if (!enrollment || !enrollment.courses.length) {
+      return res.status(403).json({ message: 'Bạn không có quyền truy cập khóa học này' });
+    }
+    const section = await Section.findOne({
+      where: { id: sectionId, courseId },
+      include: [
+        {
+          model: Video,
+          as: 'video', 
+        },
+      ],
+    });
+    if (!section) {
+      return res.status(404).json({ message: 'Không tìm thấy chương học trong khóa học này' });
+    }
+    const videos = section.video || [];
+    if (!videos.length) {
+      return res.status(404).json({ message: 'Không tìm thấy video nào trong chương học này' });
+    }
+    return res.status(200).json(videos);
+  } catch (error) {
+    next(error);
+  }
+}
 

@@ -11,4 +11,7 @@ userRouter.post('/login', loginValidationRule(), validationErrorHandler, userCon
 userRouter.post('/forgot-password',emailValidationRule(),validationErrorHandler, userController.forgotPassword)
 userRouter.post('/reset-password',passwordValidationRule(), validationErrorHandler, userController.resetPassword)
 userRouter.get('/user-course-enroll/',authenticateToken, userController.userCourseEnroll)
+userRouter.get('/user-course-enroll/course/:courseId/sections/', authenticateToken, userController.userCourseEnrollBySection)
+userRouter.get('/user-course-enroll/course/:courseId/section/:sectionId/videos', authenticateToken, userController.getVideoBySectionUserCourse)
+
 module.exports = userRouter
