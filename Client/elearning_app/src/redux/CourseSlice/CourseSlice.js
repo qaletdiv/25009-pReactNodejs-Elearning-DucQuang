@@ -70,7 +70,7 @@ const courseSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCourse.pending, (state) => {
-        (state.loading = true), (state.erorr = null);
+        (state.loading = true), (state.error = null);
       })
       .addCase(fetchCourse.fulfilled, (state, action) => {
         (state.loading = false),

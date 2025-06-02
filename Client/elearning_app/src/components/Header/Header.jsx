@@ -6,17 +6,23 @@ import { useSelector, useDispatch } from "react-redux";
 import { getMe } from "../../redux/AuthSlice/AuthSlice";
 import { Link } from "react-router-dom";
 import { logout } from "../../redux/AuthSlice/AuthSlice";
+import { useNavigate } from "react-router-dom";
+
 const Header = () => {
   const { users } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token && !users?.username) {
       dispatch(getMe());
     }
   }, [dispatch]);
-  const logOut = () => {
-    dispatch(logout());
+
+
+  const logOut = async () => {
+    await dispatch(logout());
+    navigate("/");
   };
 
   return (
@@ -93,6 +99,7 @@ const Header = () => {
                     <Link
                       className="block px-4 py-2 hover:bg-gray-100"
                       onClick={logOut}
+                      
                     >
                       LogOut
                     </Link>

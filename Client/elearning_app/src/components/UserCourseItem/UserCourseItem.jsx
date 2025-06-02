@@ -1,7 +1,6 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 export default function UserCourseItem({ userCourse, base_url }) {
-
   return (
     <div className="max-w-sm rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-102 bg-white">
       <img
@@ -19,7 +18,8 @@ export default function UserCourseItem({ userCourse, base_url }) {
 
         <div className="mt-4">
           <div className="text-sm text-gray-700 mb-1">
-            Tiến độ: {userCourse.Enrollment.inProgess}% - {userCourse.Enrollment.status}
+            Tiến độ: {userCourse.Enrollment.inProgess}% -{" "}
+            {userCourse.Enrollment.status}
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
@@ -30,9 +30,12 @@ export default function UserCourseItem({ userCourse, base_url }) {
         </div>
       </div>
       <div className="flex justify-end px-4 pb-4">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          Tiếp tục học
-        </button>
+        <Link
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          to={`/user-course-enroll/userCourses/${userCourse.id}`}
+        >
+          Tiếp tục
+        </Link>
       </div>
     </div>
   );
