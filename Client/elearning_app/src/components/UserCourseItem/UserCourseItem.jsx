@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 export default function UserCourseItem({ userCourse, base_url }) {
   return (
-    <div className="max-w-sm rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-102 bg-white">
+    <div className="max-w-sm w-[300px]  rounded-lg shadow-xl overflow-hidden transform transition-transform hover:scale-102 bg-white">
       <img
         src={`${base_url}/${userCourse.image}`}
         alt={userCourse.title}

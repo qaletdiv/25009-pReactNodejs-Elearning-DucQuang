@@ -8,6 +8,7 @@ const levelRouter = require('./LevelRoute')
 const reviewRouter = require('./reviewRouter')
 const sectionRouter = require('./sectionRoute')
 const videoRouter = require('./videoRouter')
+const videoCompletedRouter = require('./videoCompletedRoute')
 
 rootRouter.use('/users', userRouter)
 rootRouter.use('/categories', categoryRouter)
@@ -17,4 +18,5 @@ rootRouter.use('/levels', levelRouter)
 rootRouter.use('/reviews', reviewRouter)
 rootRouter.use('/sections', sectionRouter)
 rootRouter.use('/videos', videoRouter)
+rootRouter.use('/videoCompleted', videoCompletedRouter)
 module.exports = rootRouter

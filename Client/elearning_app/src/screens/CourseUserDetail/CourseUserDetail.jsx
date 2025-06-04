@@ -4,11 +4,14 @@ import { useParams } from "react-router-dom";
 import {
   getAllSectionByUserCourse,
   getVideosBySection,
+  markVideoCompleted,
 } from "../../redux/AuthSlice/AuthSlice";
+import { abc } from "../../redux/AuthSlice/AuthSlice";
 import Header from "../../components/Header/Header";
-
 const CourseUserDetail = () => {
-  const { courseSections, videosBySection } = useSelector((state) => state.auth);
+  const { courseSections, videosBySection } = useSelector(
+    (state) => state.auth
+  );
   const dispatch = useDispatch();
   const { courseId } = useParams();
   const base_url = import.meta.env.VITE_API_URL_BE;
@@ -21,11 +24,17 @@ const CourseUserDetail = () => {
     }
   }, [dispatch, courseId]);
 
+  const handleCompleteVideo = (videoId, enrollmentId) => {
+    dispatch(markVideoCompleted({ videoId, enrollmentId }));
+    dispatch(abc({ videoId }));
+    alert("Video marked as completed!");
+  };
+
   const handleSectionClick = (sectionId) => {
     dispatch(getVideosBySection({ sectionId, courseId }));
     setActiveSection(sectionId);
     if (videosBySection && videosBySection.length > 0) {
-      setSelectedVideo(videosBySection[0]); 
+      setSelectedVideo(videosBySection[0]);
     } else {
       setSelectedVideo(null);
     }
@@ -35,14 +44,19 @@ const CourseUserDetail = () => {
     setSelectedVideo(video);
   };
 
+  const enrollmentId = courseSections.map((item) => item?.Enrollment?.id)[0];
+  console.log(courseSections, "courseSections");
   return (
     <div className="bg-gray-100 min-h-screen">
       <Header />
       <div className="container mx-auto p-4 flex flex-row gap-4 h-[calc(100vh-64px)]">
-        <div className="w-3/4 bg-dark rounded-lg shadow-md p-4">
+        <div className="w-3/4 bg-white rounded-lg shadow-md p-4 flex flex-col justify-between">
           {selectedVideo ? (
-            <div className="flex flex-col h-[calc(100%-2rem)]">
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}> 
+            <>
+              <div
+                className="relative w-full"
+                style={{ paddingBottom: "56.25%" }}
+              >
                 <video
                   controls
                   className="absolute top-0 left-0 w-full h-full rounded-md object-contain"
@@ -50,10 +64,21 @@ const CourseUserDetail = () => {
                   autoPlay
                 />
               </div>
-            </div>
+
+              {/* {!selectedVideo.completed && ( */}
+              <button
+                className="mt-6 self-end bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-2 rounded transition duration-200"
+                onClick={() =>
+                  handleCompleteVideo(selectedVideo.id, enrollmentId)
+                }
+              >
+                ✅ Done
+              </button>
+              {/* )} */}
+            </>
           ) : (
             <div className="text-center text-gray-600 text-sm h-full flex items-center justify-center">
-              Select a section from the right to start watching.
+              Chọn một phần ở bên phải để bắt đầu học.
             </div>
           )}
         </div>
@@ -74,25 +99,33 @@ const CourseUserDetail = () => {
                             ? "bg-blue-100 text-blue-800"
                             : "hover:bg-gray-100"
                         }`}
-                        onClick={() => handleSectionClick(section.id, section.sectionName)}
+                        onClick={() =>
+                          handleSectionClick(section.id, section.sectionName)
+                        }
                       >
                         <h4 className="text-sm font-medium">
                           {section.sectionName}
                         </h4>
                       </div>
-                      {activeSection === section.id && videosBySection?.length > 0 && (
+
+                      {activeSection === section.id && (
                         <div className="ml-4 mt-1 space-y-1">
-                          {videosBySection.map((video) => (
+                          {section?.video?.map((video) => (
                             <div
                               key={video.id}
-                              className={`pl-2 py-1 cursor-pointer rounded ${
+                              className={`pl-2 py-1 cursor-pointer rounded flex items-center justify-between ${
                                 selectedVideo?.id === video.id
                                   ? "bg-gray-200"
                                   : "hover:bg-gray-100"
                               }`}
                               onClick={() => handleVideoClick(video)}
                             >
-                              <p className="text-xs text-gray-600">{video.videoName}</p>
+                              <p className="text-xs text-gray-600">
+                                {video.videoName} -{" "}
+                                {video.completed
+                                  ? "Completed"
+                                  : "Not Completed"}
+                              </p>
                             </div>
                           ))}
                         </div>
@@ -103,7 +136,9 @@ const CourseUserDetail = () => {
               ))}
             </div>
           ) : (
-            <div className="text-gray-600 text-sm">No course content available.</div>
+            <div className="text-gray-600 text-sm">
+              No course content available.
+            </div>
           )}
         </div>
       </div>

@@ -9,6 +9,7 @@ const initialState = {
   userCoursesEnroll: [],
   courseSections: [],
   videosBySection: [],
+  completedVideos: [],
 };
 
 export const registerUser = createAsyncThunk(
@@ -58,7 +59,9 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post("/users/forgot-password", { email });
+      const response = await axiosClient.post("/users/forgot-password", {
+        email,
+      });
       return response.data;
     } catch (error) {
       const msg =
@@ -122,49 +125,72 @@ export const userCourses = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      const msg =
-        error.response?.data?.message ||
-        error.message;
+      const msg = error.response?.data?.message || error.message;
       return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
 );
 
-
-export const getAllSectionByUserCourse =createAsyncThunk(
-  "auth/getAllSectionByUserCourse", async ({courseId}, { rejectWithValue }) => {
-    try {   
+export const getAllSectionByUserCourse = createAsyncThunk(
+  "auth/getAllSectionByUserCourse",
+  async ({ courseId }, { rejectWithValue }) => {
+    try {
       const token = localStorage.getItem("token");
-      const response = await axiosClient.get(`/users/user-course-enroll/course/${courseId}/sections/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosClient.get(
+        `/users/user-course-enroll/course/${courseId}/sections/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log(response);
       return response.data;
     } catch (error) {
-      const msg =
-        error.response?.data?.message ||
-        error.message;
+      const msg = error.response?.data?.message || error.message;
       return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
 );
 
 export const getVideosBySection = createAsyncThunk(
-  "auth/getVideosBySection", async ({courseId, sectionId}, { rejectWithValue }) => { 
+  "auth/getVideosBySection",
+  async ({ courseId, sectionId }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axiosClient.get(`/users/user-course-enroll/course/${courseId}/section/${sectionId}/videos`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosClient.get(
+        `/users/user-course-enroll/course/${courseId}/section/${sectionId}/videos`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
-      const msg =
-        error.response?.data?.message ||
-        error.message;
+      const msg = error.response?.data?.message || error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
+
+export const markVideoCompleted = createAsyncThunk(
+  "auth/markVideoCompleted",
+  async ({ videoId, enrollmentId }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosClient.post(
+        `/videoCompleted`,
+        { videoId, enrollmentId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return { data: response.data, videoId };
+    } catch (error) {
+      const msg = error.response?.data?.message || error.message;
       return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
     }
   }
@@ -179,6 +205,22 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.users = null;
       localStorage.removeItem("token");
+    },
+    abc: (state, action) => {
+      state.courseSections?.forEach((course) => {
+        console.log("course", course);
+        course.sections?.forEach((section) => {
+          console.log("section", section);
+
+          section.video?.forEach((video) => {
+            console.log("video", video);
+
+            if (video.id === action.payload.videoId) {
+              video.completed = true;
+            }
+          });
+        });
+      });
     },
   },
   extraReducers: (builder) => {
@@ -250,7 +292,7 @@ const authSlice = createSlice({
       })
       .addCase(getAllSectionByUserCourse.fulfilled, (state, action) => {
         state.loading = false;
-        state.courseSections = action.payload.course.courses
+        state.courseSections = action.payload.course.courses;
       })
       .addCase(getAllSectionByUserCourse.rejected, (state, action) => {
         state.loading = false;
@@ -267,9 +309,40 @@ const authSlice = createSlice({
       .addCase(getVideosBySection.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(markVideoCompleted.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(markVideoCompleted.fulfilled, (state, action) => {
+        state.loading = false;
+
+        // Thêm video đã hoàn thành vào completedVideos
+        state.completedVideos.push(action.payload.data.videoCompleted);
+
+        // Duyệt qua các course, section và video để cập nhật completed
+        // state.courseSections?.forEach((course) => {
+        //   console.log("course", course);
+        //   course.sections?.forEach((section) => {
+        //     console.log("section", section);
+
+        //     section.video?.forEach((video) => {
+        //       console.log("video", video);
+
+        //       if (video.id === action.payload.videoId) {
+        //         video.completed = true;
+        //       }
+        //     });
+        //   });
+        // });
+      })
+
+      .addCase(markVideoCompleted.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, changeCompletedVideos, abc } = authSlice.actions;
 export default authSlice.reducer;
