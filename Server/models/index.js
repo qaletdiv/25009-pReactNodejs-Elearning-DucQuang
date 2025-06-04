@@ -20,6 +20,7 @@ db.Review = require('./review')(sequelize, Sequelize)
 db.SectionSource = require('./sectionsource')(sequelize, Sequelize)
 db.Section = require('./section')(sequelize, Sequelize)
 db.Video = require('./videos')(sequelize, Sequelize)
+db.VideoCompleted = require('./videocompleted')(sequelize, Sequelize)
 Object.keys(db).forEach((modelName) => {
     if(db[modelName].associate) {
         db[modelName].associate(db);

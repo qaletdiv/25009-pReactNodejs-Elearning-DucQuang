@@ -9,6 +9,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "sectionId",
         as: "section",
       });
+      Video.belongsToMany(model.Enrollment, {
+        through: model.VideoCompleted,
+        foreignKey: "videoId",
+        otherKey: "enrollmentId",
+        as: "completedByUsers",
+      });
     }
   }
   Video.init(

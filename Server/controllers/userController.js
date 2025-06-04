@@ -1,4 +1,4 @@
-const { User, Enrollment, Course, Section, Video } = require("../models");
+const { User, Enrollment, Course, Section, Video, VideoCompleted } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodeMailer = require("nodemailer");
@@ -145,7 +145,9 @@ exports.resetPassword = async (req, res, next) => {
     try {
       decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(400).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+      return res
+        .status(400)
+        .json({ message: "Token không hợp lệ hoặc đã hết hạn" });
     }
 
     const user = await User.findOne({
@@ -163,13 +165,13 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
-exports.getMe = async(req, res, next) => {
+exports.getMe = async (req, res, next) => {
   try {
-    res.status(200).json({user: req.user})
+    res.status(200).json({ user: req.user });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 exports.userCourseEnroll = async (req, res, next) => {
   try {
@@ -179,7 +181,7 @@ exports.userCourseEnroll = async (req, res, next) => {
           model: Course,
           as: "courses",
           through: {
-            attributes: ["courseId", "inProgess", "status"],
+            attributes: ["courseId", "inProgess", "status", "id"],
           },
         },
       ],
@@ -195,10 +197,10 @@ exports.userCourseEnroll = async (req, res, next) => {
   }
 };
 
-
 exports.userCourseEnrollBySection = async (req, res, next) => {
-  const  {courseId}  = req.params;
+  const { courseId } = req.params;
   const userId = req.user.id;
+ 
   try {
     const course = await User.findByPk(userId, {
       include: [
@@ -206,28 +208,55 @@ exports.userCourseEnrollBySection = async (req, res, next) => {
           model: Course,
           as: "courses",
           where: { id: courseId },
-          through: { attributes: [] }, 
+          through: {
+            attributes: ["id"],
+          },
           include: [
             {
               model: Section,
               as: "sections",
+              include: [
+                {
+                  model: Video,
+                  as: "video",
+                },
+              ],
             },
           ],
         },
       ],
     });
+ 
     if (!course) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy khóa học mà người dùng đã đăng ký" });
+      return res.status(404).json({
+        message: "Không tìm thấy khóa học mà người dùng đã đăng ký",
+      });
     }
+ 
+    const enrollmentId = course.courses[0].Enrollment.id;
+ 
+    const videoCompleted = await VideoCompleted.findAll({
+      where: { enrollmentId },
+      attributes: ["videoId"],
+    });
+
+    const completedVideoIds = videoCompleted.map(vc => vc.videoId);
+ 
+    const sections = course.courses[0].sections;
+ 
+    sections.forEach(section => {
+      section.video.forEach(video => {
+        video.dataValues.completed = completedVideoIds.includes(video.id);
+      });
+    });
+ 
     res.status(200).json({ course });
   } catch (error) {
     next(error);
   }
 };
 
-exports.getVideoBySectionUserCourse = async(req, res, next) => {
+exports.getVideoBySectionUserCourse = async (req, res, next) => {
   try {
     const { courseId, sectionId } = req.params;
     const userId = req.user.id;
@@ -235,33 +264,38 @@ exports.getVideoBySectionUserCourse = async(req, res, next) => {
       include: [
         {
           model: Course,
-          as: 'courses',
+          as: "courses",
           where: { id: courseId },
         },
       ],
     });
     if (!enrollment || !enrollment.courses.length) {
-      return res.status(403).json({ message: 'Bạn không có quyền truy cập khóa học này' });
+      return res
+        .status(403)
+        .json({ message: "Bạn không có quyền truy cập khóa học này" });
     }
     const section = await Section.findOne({
       where: { id: sectionId, courseId },
       include: [
         {
           model: Video,
-          as: 'video', 
+          as: "video",
         },
       ],
     });
     if (!section) {
-      return res.status(404).json({ message: 'Không tìm thấy chương học trong khóa học này' });
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy chương học trong khóa học này" });
     }
     const videos = section.video || [];
     if (!videos.length) {
-      return res.status(404).json({ message: 'Không tìm thấy video nào trong chương học này' });
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy video nào trong chương học này" });
     }
     return res.status(200).json(videos);
   } catch (error) {
     next(error);
   }
-}
-
+};
