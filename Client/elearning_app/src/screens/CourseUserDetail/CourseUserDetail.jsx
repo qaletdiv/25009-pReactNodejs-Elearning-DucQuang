@@ -5,18 +5,26 @@ import {
   getAllSectionByUserCourse,
   getVideosBySection,
   markVideoCompleted,
+  submitQuizze,
 } from "../../redux/AuthSlice/AuthSlice";
-import { abc } from "../../redux/AuthSlice/AuthSlice";
 import Header from "../../components/Header/Header";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const CourseUserDetail = () => {
-  const { courseSections, videosBySection } = useSelector(
+  const { courseSections, quizResult } = useSelector(
     (state) => state.auth
   );
   const dispatch = useDispatch();
   const { courseId } = useParams();
   const base_url = import.meta.env.VITE_API_URL_BE;
+
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [activeSection, setActiveSection] = useState(null);
+  const [selectedQuizze, setSelectedQuizze] = useState(null);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  
 
   useEffect(() => {
     if (courseId) {
@@ -26,32 +34,127 @@ const CourseUserDetail = () => {
 
   const handleCompleteVideo = (videoId, enrollmentId) => {
     dispatch(markVideoCompleted({ videoId, enrollmentId }));
-    dispatch(abc({ videoId }));
     alert("Video marked as completed!");
+  };
+
+  const handleQuizClick = (quiz) => {
+    setSelectedQuizze(quiz);
+    setSelectedVideo(null);
+    setActiveSection(quiz.sectionId);
+    setQuizAnswers({});
+    setIsSubmitted(false);
+  };
+
+  const handleSubmitQuiz = (quizzeId) => {
+    const answers = selectedQuizze.questions.map((q) => ({
+      questionId: q.id,
+      answerId: quizAnswers[q.id],
+    }));
+    dispatch(submitQuizze({ quizzeId, answers })).then(() => {
+      setIsSubmitted(true);
+      toast.success("Nộp bài thành công", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    });
   };
 
   const handleSectionClick = (sectionId) => {
     dispatch(getVideosBySection({ sectionId, courseId }));
     setActiveSection(sectionId);
-    if (videosBySection && videosBySection.length > 0) {
-      setSelectedVideo(videosBySection[0]);
-    } else {
-      setSelectedVideo(null);
-    }
+    setSelectedQuizze(null);
+    setIsSubmitted(false);
+    setQuizAnswers({});
   };
 
   const handleVideoClick = (video) => {
     setSelectedVideo(video);
+    setSelectedQuizze(null);
+    setIsSubmitted(false);
   };
 
-  const enrollmentId = courseSections.map((item) => item?.Enrollment?.id)[0];
-  console.log(courseSections, "courseSections");
+  const enrollmentId =
+    courseSections.map((item) => item?.Enrollment?.id)[0] || null;
+
   return (
     <div className="bg-gray-100 min-h-screen">
       <Header />
-      <div className="container mx-auto p-4 flex flex-row gap-4 h-[calc(100vh-64px)]">
+      <div className="container mx-auto p-4 flex gap-4 h-[calc(100vh-64px)]">
         <div className="w-3/4 bg-white rounded-lg shadow-md p-4 flex flex-col justify-between">
-          {selectedVideo ? (
+          {selectedQuizze ? (
+            <div>
+              <h2 className="text-lg font-bold mb-4">
+                {selectedQuizze.quizzeName}
+              </h2>
+              {selectedQuizze.questions.map((question, idx) => {
+                const result = quizResult?.detailResults?.find(
+                  (r) => r.questionId === question.id
+                );
+                const selectedAns = quizAnswers[question.id];
+
+                return (
+                  <div key={question.id} className="mb-4">
+                    <p className="font-medium">
+                      {idx + 1}. {question.questionText} –{" "}
+                      {question.questionScore}
+                    </p>
+                    {question.answers.map((answer) => {
+                      let style = "";
+                      if (isSubmitted && result) {
+                        if (answer.id === result.correctAnswerId) {
+                          style = "text-green-600 font-bold";
+                        } else if (
+                          answer.id === selectedAns &&
+                          !result.isCorrect
+                        ) {
+                          style = "text-red-600 font-bold";
+                        }
+                      }
+
+                      return (
+                        <div key={answer.id} className={style}>
+                          <label>
+                            <input
+                              type="radio"
+                              name={`q_${question.id}`}
+                              value={answer.id}
+                              checked={selectedAns === answer.id}
+                              disabled={isSubmitted}
+                              onChange={() =>
+                                setQuizAnswers((prev) => ({
+                                  ...prev,
+                                  [question.id]: answer.id,
+                                }))
+                              }
+                              className="mr-2"
+                            />
+                            {answer.answerText}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+              <button
+                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+                disabled={isSubmitted}
+                onClick={() => handleSubmitQuiz(selectedQuizze.id)}
+              >
+                Nộp bài
+              </button>
+
+              {isSubmitted && quizResult && (
+                <div className="mt-4">
+                  <h3 className="text-lg font-bold">Kết quả</h3>
+                  <p>
+                    Điểm: {quizResult.score} — Đúng:{" "}
+                    {quizResult.correctCount}/{quizResult.totalQuestion}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : selectedVideo ? (
             <>
               <div
                 className="relative w-full"
@@ -59,89 +162,96 @@ const CourseUserDetail = () => {
               >
                 <video
                   controls
-                  className="absolute top-0 left-0 w-full h-full rounded-md object-contain"
                   src={`${base_url}/${selectedVideo.path}`}
+                  className="absolute top-0 left-0 w-full h-full rounded-md object-contain"
                   autoPlay
                 />
               </div>
-
-              {/* {!selectedVideo.completed && ( */}
               <button
-                className="mt-6 self-end bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-2 rounded transition duration-200"
+                className="mt-6 self-end bg-green-600 text-white px-4 py-2 rounded"
                 onClick={() =>
                   handleCompleteVideo(selectedVideo.id, enrollmentId)
                 }
               >
                 ✅ Done
               </button>
-              {/* )} */}
             </>
           ) : (
-            <div className="text-center text-gray-600 text-sm h-full flex items-center justify-center">
-              Chọn một phần ở bên phải để bắt đầu học.
+            <div className="flex items-center justify-center h-full text-gray-600">
+              Chọn phần học hoặc quiz để bắt đầu.
             </div>
           )}
         </div>
 
-        <div className="w-1/4 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-[calc(100vh-64px)]">
-          {courseSections?.length > 0 ? (
-            <div className="space-y-2">
-              {courseSections.map((course) => (
-                <div key={course.id}>
-                  <h3 className="text-md font-medium text-gray-700 mb-2">
-                    {course.title}
-                  </h3>
-                  {course.sections?.map((section) => (
-                    <div key={section.id}>
-                      <div
-                        className={`pl-2 py-2 cursor-pointer rounded ${
-                          activeSection === section.id
-                            ? "bg-blue-100 text-blue-800"
-                            : "hover:bg-gray-100"
-                        }`}
-                        onClick={() =>
-                          handleSectionClick(section.id, section.sectionName)
-                        }
-                      >
-                        <h4 className="text-sm font-medium">
-                          {section.sectionName}
-                        </h4>
-                      </div>
-
-                      {activeSection === section.id && (
+        <div className="w-1/4 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
+          {courseSections.length > 0 ? (
+            courseSections.map((section) => (
+              <div key={section.id} className="mb-4">
+                <h3 className="text-md font-medium text-gray-700 mb-2">
+                  {section.title}
+                </h3>
+                {section.sections.map((sec) => (
+                  <div key={sec.id}>
+                    <div
+                      className={`pl-2 py-2 rounded cursor-pointer ${
+                        activeSection === sec.id
+                          ? "bg-blue-100 text-blue-800"
+                          : "hover:bg-gray-100"
+                      }`}
+                      onClick={() => handleSectionClick(sec.id)}
+                    >
+                      {sec.sectionName}
+                    </div>
+                    {activeSection === sec.id && (
+                      <>
                         <div className="ml-4 mt-1 space-y-1">
-                          {section?.video?.map((video) => (
+                          {sec.video.map((v) => (
                             <div
-                              key={video.id}
-                              className={`pl-2 py-1 cursor-pointer rounded flex items-center justify-between ${
-                                selectedVideo?.id === video.id
+                              key={v.id}
+                              className={`pl-2 py-1 cursor-pointer rounded flex justify-between items-center ${
+                                selectedVideo?.id === v.id
                                   ? "bg-gray-200"
                                   : "hover:bg-gray-100"
                               }`}
-                              onClick={() => handleVideoClick(video)}
+                              onClick={() => handleVideoClick(v)}
                             >
                               <p className="text-xs text-gray-600">
-                                {video.videoName} -{" "}
-                                {video.completed
-                                  ? "Completed"
-                                  : "Not Completed"}
+                                {v.videoName} –{" "}
+                                {v.completed ? "Hoàn thành" : "Chưa xong"}
                               </p>
                             </div>
                           ))}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+                        {sec.quizzes?.length > 0 && (
+                          <div className="ml-4 mt-2">
+                            <h5 className="text-xs font-medium text-gray-600">
+                              Quizzes
+                            </h5>
+                            {sec.quizzes.map((qz) => (
+                              <div
+                                key={qz.id}
+                                className="pl-2 py-1 cursor-pointer rounded hover:bg-gray-100"
+                                onClick={() => handleQuizClick(qz)}
+                              >
+                                <p className="text-xs text-gray-600">
+                                  {qz.quizzeName}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))
           ) : (
-            <div className="text-gray-600 text-sm">
-              No course content available.
-            </div>
+            <p className="text-gray-600">Chưa có nội dung khóa học.</p>
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
