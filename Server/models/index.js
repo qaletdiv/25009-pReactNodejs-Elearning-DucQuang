@@ -21,6 +21,11 @@ db.SectionSource = require('./sectionsource')(sequelize, Sequelize)
 db.Section = require('./section')(sequelize, Sequelize)
 db.Video = require('./videos')(sequelize, Sequelize)
 db.VideoCompleted = require('./videocompleted')(sequelize, Sequelize)
+db.Quizze = require('./quizze')(sequelize, Sequelize)
+db.Question = require('./question')(sequelize, Sequelize)
+db.Answer = require('./answer')(sequelize, Sequelize)
+db.UserSubmission = require('./usersubmission')(sequelize, Sequelize)
+db.UserSubmissionAnswer = require('./usersubmissionanswer')(sequelize, Sequelize)
 Object.keys(db).forEach((modelName) => {
     if(db[modelName].associate) {
         db[modelName].associate(db);

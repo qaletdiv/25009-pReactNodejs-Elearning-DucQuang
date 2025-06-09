@@ -10,6 +10,7 @@ const initialState = {
   courseSections: [],
   videosBySection: [],
   completedVideos: [],
+  quizResult: null,
 };
 
 export const registerUser = createAsyncThunk(
@@ -196,6 +197,49 @@ export const markVideoCompleted = createAsyncThunk(
   }
 );
 
+export const getQuizze = createAsyncThunk(
+  "auth/getQuizze",
+  async ({ courseId, sectionId }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosClient.get(
+        `/users/user-course-enroll/course/${courseId}/section/${sectionId}/quizze`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const msg = error.response?.data?.message || error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
+
+export const submitQuizze = createAsyncThunk(
+  "auth/submitQuizze",
+  async ({ quizzeId, answers }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      console.log("Payload gửi lên:", { quizzeId, answers });
+      const response = await axiosClient.post(
+        `/userSubmits`,
+        { quizzeId, answers },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const msg = error.response?.data?.message || error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -316,28 +360,22 @@ const authSlice = createSlice({
       })
       .addCase(markVideoCompleted.fulfilled, (state, action) => {
         state.loading = false;
-
-        // Thêm video đã hoàn thành vào completedVideos
         state.completedVideos.push(action.payload.data.videoCompleted);
-
-        // Duyệt qua các course, section và video để cập nhật completed
-        // state.courseSections?.forEach((course) => {
-        //   console.log("course", course);
-        //   course.sections?.forEach((section) => {
-        //     console.log("section", section);
-
-        //     section.video?.forEach((video) => {
-        //       console.log("video", video);
-
-        //       if (video.id === action.payload.videoId) {
-        //         video.completed = true;
-        //       }
-        //     });
-        //   });
-        // });
       })
-
       .addCase(markVideoCompleted.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(submitQuizze.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(submitQuizze.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log("submitQuizze fulfilled", action.payload);
+        state.quizResult = action.payload;
+      })
+      .addCase(submitQuizze.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
