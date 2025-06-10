@@ -12,7 +12,7 @@ const authenticateToken = (req, res, next) => {
             if(err instanceof jwt.TokenExpiredError) {
                 return res.status(401).json({message: "Token đã hết hạn"})
             }
-            res.status(403).json({message: "Token không hợp lệ"})
+            return res.status(403).json({message: "Token không hợp lệ"})
         }
         const userId = decodedPayload.id
         if(!userId) {

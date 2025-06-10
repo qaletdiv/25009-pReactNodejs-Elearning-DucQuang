@@ -9,6 +9,7 @@ import UserCourse from "./screens/userCourse/userCourse";
 import Course from "./screens/Course/Course";
 import CourseDetail from "./screens/CourseDetail/CourseDetail";
 import CourseUserDetail from './screens/CourseUserDetail/CourseUserDetail'
+import UserProfile from "./screens/UserProfile/UserProfile";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/courses" element={<Course/>}></Route>
           <Route path="/courses/:id" element={<CourseDetail/>}></Route>
           <Route path="/user-course-enroll/userCourses/:courseId" element={<CourseUserDetail />} />
+          <Route path="/profile" element={<UserProfile/>} />
         </Routes>
       </BrowserRouter>
     </>

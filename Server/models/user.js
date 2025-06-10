@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "quizzeId",
         as: "quizzeSubmissions",
       });
+      User.hasOne(model.UserProfile, {
+        foreignKey: "userId",
+        as: "profile",
+      });
     }
   }
   User.init(
