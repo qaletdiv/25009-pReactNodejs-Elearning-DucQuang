@@ -26,6 +26,7 @@ db.Question = require('./question')(sequelize, Sequelize)
 db.Answer = require('./answer')(sequelize, Sequelize)
 db.UserSubmission = require('./usersubmission')(sequelize, Sequelize)
 db.UserSubmissionAnswer = require('./usersubmissionanswer')(sequelize, Sequelize)
+db.UserProfile = require('./userprofile')(sequelize, Sequelize)
 Object.keys(db).forEach((modelName) => {
     if(db[modelName].associate) {
         db[modelName].associate(db);

@@ -68,6 +68,7 @@ const CourseUserDetail = () => {
   };
 
   const handleVideoClick = (video) => {
+    console.log(video);
     setSelectedVideo(video);
     setSelectedQuizze(null);
     setIsSubmitted(false);
@@ -110,7 +111,7 @@ const CourseUserDetail = () => {
                           style = "text-red-600 font-bold";
                         }
                       }
-
+                      
                       return (
                         <div key={answer.id} className={style}>
                           <label>
@@ -216,7 +217,7 @@ const CourseUserDetail = () => {
                               onClick={() => handleVideoClick(v)}
                             >
                               <p className="text-xs text-gray-600">
-                                {v.videoName} –{" "}
+                                {v.videoName} – {" "}
                                 {v.completed ? "Hoàn thành" : "Chưa xong"}
                               </p>
                             </div>

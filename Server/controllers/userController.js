@@ -8,6 +8,7 @@ const {
   Quizze,
   Question,
   Answer,
+  UserProfile,
 } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -321,6 +322,76 @@ exports.getVideoBySectionUserCourse = async (req, res, next) => {
         .json({ message: "Không tìm thấy video nào trong chương học này" });
     }
     return res.status(200).json(videos);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.updateUserProfile = async (req, res, next) => {
+  try {
+    const { firstName, lastName, dateOfBirth, phoneNumber } = req.body;
+    const userId = req.user.id;
+
+    const updateData = {};
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (dateOfBirth) updateData.dateOfBirth = dateOfBirth;
+    if (phoneNumber) updateData.phoneNumber = phoneNumber;
+    if (req.file && req.file.processedFileName) {
+      updateData.userImage = `uploads/${req.file.processedFileName}`;
+    }
+
+    let profile = await UserProfile.findOne({ where: { userId } });
+
+    if (profile) {
+      await profile.update(updateData);
+    } else {
+      await UserProfile.create({
+        userId,
+        ...updateData,
+      });
+    }
+
+    const updatedProfile = await UserProfile.findOne({ where: { userId } });
+
+    res.status(200).json({
+      message: profile ? "Cập nhật hồ sơ thành công" : "Tạo hồ sơ thành công",
+      profile: updatedProfile,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getUserProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const profile = await UserProfile.findOne({ where: { userId } });
+
+    if (!profile) {
+      return res.status(404).json({ message: "Không tìm thấy hồ sơ người dùng" });
+    }
+
+    res.status(200).json({ profile });
+  } catch (error) {
+    next(error);
+  }
+}
+
+exports.changePassword = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { newPassword } = req.body;
+    if (!newPassword) {
+      return res.status(400).json({ message: "Vui lòng nhập mật khẩu mới" });
+    }
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy user" });
+    }
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.status(200).json({ message: "Đổi mật khẩu thành công" });
   } catch (error) {
     next(error);
   }

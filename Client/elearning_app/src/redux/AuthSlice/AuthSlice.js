@@ -11,6 +11,8 @@ const initialState = {
   videosBySection: [],
   completedVideos: [],
   quizResult: null,
+  newUserProfile: null,
+  userProfile: null,
 };
 
 export const registerUser = createAsyncThunk(
@@ -240,6 +242,75 @@ export const submitQuizze = createAsyncThunk(
     }
   }
 );
+
+export const editUserProfile = createAsyncThunk(
+  "auth/editUserProfile",
+  async ({ firstName, lastName, phoneNumber, userImage, dateOfBirth }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("firstName", firstName);
+      formData.append("lastName", lastName);
+      formData.append("phoneNumber", phoneNumber);
+      formData.append("dateOfBirth", dateOfBirth);
+      if (userImage) {
+        formData.append("userImage", userImage);
+      }
+
+      const response = await axiosClient.patch("/users/update-user-profile", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      const msg = error.response?.data?.message || error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
+
+export const fetchUserProfile = createAsyncThunk(
+  "auth/fetchUserProfile",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosClient.get("/users/user-profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      const msg = error.response?.data?.message || error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
+
+export const changePassword = createAsyncThunk(
+  "auth/changePassword",
+  async ({ newPassword }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosClient.patch(
+        "/users/change-password",
+        { newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const msg = error.response?.data?.message || error.message;
+      return rejectWithValue(msg || "Đã xảy ra lỗi không xác định");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -372,13 +443,37 @@ const authSlice = createSlice({
       })
       .addCase(submitQuizze.fulfilled, (state, action) => {
         state.loading = false;
-        console.log("submitQuizze fulfilled", action.payload);
         state.quizResult = action.payload;
       })
       .addCase(submitQuizze.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(editUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.newUserProfile = action.payload;
+      })
+      .addCase(editUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userProfile = action.payload;
+      })
+      .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+
   },
 });
 
