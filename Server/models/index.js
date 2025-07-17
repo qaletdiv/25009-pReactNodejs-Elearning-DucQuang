@@ -27,6 +27,10 @@ db.Answer = require('./answer')(sequelize, Sequelize)
 db.UserSubmission = require('./usersubmission')(sequelize, Sequelize)
 db.UserSubmissionAnswer = require('./usersubmissionanswer')(sequelize, Sequelize)
 db.UserProfile = require('./userprofile')(sequelize, Sequelize)
+db.Order = require('./order')(sequelize, Sequelize)
+db.Cart = require('./cart')(sequelize, Sequelize)
+db.CartItem = require('./cartItem')(sequelize, Sequelize)
+db.OrderItem = require('./orderitems')(sequelize, Sequelize)
 Object.keys(db).forEach((modelName) => {
     if(db[modelName].associate) {
         db[modelName].associate(db);

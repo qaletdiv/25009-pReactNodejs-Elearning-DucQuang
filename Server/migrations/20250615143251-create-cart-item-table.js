@@ -3,37 +3,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable("UserProfiles", {
+     await queryInterface.createTable("CartItems", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      userId: {
+      courseId: {
         type: Sequelize.INTEGER,
-        references: { model: "Users", key: "id" },
+        references: { model: "Courses", key: "id" },
         allowNull: false,
       },
-      firstName: {
-        type: Sequelize.STRING,
+      cartId: {
+        type: Sequelize.INTEGER,
+        references: { model: "Carts", key: "id" },
         allowNull: false,
-      },
-      lastName: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      dateOfBirth: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
-      phoneNumber: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      userImage: {
-        type: Sequelize.STRING,
-        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -43,10 +28,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-    })
+     })
   },
 
   async down (queryInterface, Sequelize) {
-     await queryInterface.dropTable("UserProfiles");
+    await queryInterface.dropTable("CartItems");
   }
 };

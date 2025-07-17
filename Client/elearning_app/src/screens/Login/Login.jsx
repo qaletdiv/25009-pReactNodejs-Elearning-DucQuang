@@ -7,6 +7,7 @@ import { loginUser } from "../../redux/AuthSlice/AuthSlice";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getMe } from "../../redux/AuthSlice/AuthSlice";
 const Login = () => {
   const {
     register,
@@ -18,7 +19,8 @@ const Login = () => {
   const navigate = useNavigate();
   const onHandleSubmit = async (data) => {
     try {
-      await dispatch(loginUser(data)).unwrap();
+       const res = await dispatch(loginUser(data)).unwrap();
+      localStorage.setItem("token", res.token);
       toast.success(
         "Đăng nhập thành công! Bạn sẽ được chuyển tới trang chủ.",
         {
@@ -30,6 +32,7 @@ const Login = () => {
           draggable: true,
         }
       );
+      await dispatch(getMe()).unwrap();
       setTimeout(() => {
         navigate("/");
       }, 2000);

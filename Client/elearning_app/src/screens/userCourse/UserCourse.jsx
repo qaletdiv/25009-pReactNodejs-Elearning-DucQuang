@@ -15,7 +15,7 @@ const UserCourse = () => {
     if (token && (!userCoursesEnroll || userCoursesEnroll.length === 0)) {
       dispatch(userCourses());
     }
-  },[dispatch, userCoursesEnroll]);
+  }, [dispatch, userCoursesEnroll]);
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>Lỗi: {error}</div>;
@@ -26,9 +26,10 @@ const UserCourse = () => {
   return (
     <>
       <div>
-        <Header/>
-        <h1 className="text-2xl font-bold text-center my-4">Khóa học của bạn</h1>
-        <UserCourseList userCourse={userCoursesEnroll}/>
+        <Header />
+        <div className="mt-5">
+          <UserCourseList userCourse={userCoursesEnroll} />
+        </div>
       </div>
     </>
   );

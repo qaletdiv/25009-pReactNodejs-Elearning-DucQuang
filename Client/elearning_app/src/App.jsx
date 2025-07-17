@@ -10,8 +10,24 @@ import Course from "./screens/Course/Course";
 import CourseDetail from "./screens/CourseDetail/CourseDetail";
 import CourseUserDetail from './screens/CourseUserDetail/CourseUserDetail'
 import UserProfile from "./screens/UserProfile/UserProfile";
+import Cart from "./screens/Cart/Cart";
+import CheckOut from "./screens/CheckOut/CheckOut";
+import { ToastContainer } from "react-toastify";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { getMe } from "./redux/AuthSlice/AuthSlice";
+import { fetchCart } from "./redux/Cart/CartSlice";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(getMe());
+      dispatch(fetchCart());
+    }
+  }, [dispatch]);
   return (
     <>
       <BrowserRouter>
@@ -26,7 +42,10 @@ function App() {
           <Route path="/courses/:id" element={<CourseDetail/>}></Route>
           <Route path="/user-course-enroll/userCourses/:courseId" element={<CourseUserDetail />} />
           <Route path="/profile" element={<UserProfile/>} />
+          <Route path="/cart" element={<Cart/>} />
+          <Route path="/checkout" element={<CheckOut/>} />
         </Routes>
+        <ToastContainer />
       </BrowserRouter>
     </>
   );

@@ -6,19 +6,24 @@ import Pagination from "@mui/material/Pagination";
 import { setPage } from "../../redux/CourseSlice/CourseSlice";
 const CourseList = () => {
   const dispatch = useDispatch();
-  const { courses, loading, error, levelFilter, categoryFilter, page, limit, totalPages } = useSelector(
-    (state) => state.course
-  );
+  const {
+    courses,
+    loading,
+    error,
+    levelFilter,
+    categoryFilter,
+    page,
+    limit,
+    totalPages,
+  } = useSelector((state) => state.course);
   const base_url = import.meta.env.VITE_API_URL_BE;
   const handleChange = (event, value) => {
     dispatch(setPage(value));
   };
-  
-  useEffect(() => {
-    dispatch(fetchCourse({page, limit}));
-  }, [dispatch, page, levelFilter, categoryFilter]);
 
- 
+  useEffect(() => {
+    dispatch(fetchCourse({ page, limit }));
+  }, [dispatch, page, levelFilter, categoryFilter]);
   const filteredCourses = courses.filter((course) => {
     const matchCategory =
       !categoryFilter || categoryFilter === "All"
@@ -43,14 +48,14 @@ const CourseList = () => {
     return <div className="text-center text-gray-500">Không có khóa học</div>;
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="grid grid-cols-4   gap-6 mt-8">
+    <div className="">
+      <div className="container mx-auto px-4 py-8 flex flex-wrap gap-6  justify-center items-center">
         {filteredCourses.map((course) => (
           <CourseItem key={course.id} course={course} base_url={base_url} />
         ))}
       </div>
       <div className="mt-8 flex justify-center">
-         <Pagination count={totalPages} page={page} onChange={handleChange} />
+        <Pagination count={totalPages} page={page} onChange={handleChange} />
       </div>
     </div>
   );

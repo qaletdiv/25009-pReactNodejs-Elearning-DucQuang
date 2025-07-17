@@ -147,7 +147,6 @@ export const getAllSectionByUserCourse = createAsyncThunk(
           },
         }
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       const msg = error.response?.data?.message || error.message;
@@ -225,7 +224,6 @@ export const submitQuizze = createAsyncThunk(
   async ({ quizzeId, answers }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      console.log("Payload gửi lên:", { quizzeId, answers });
       const response = await axiosClient.post(
         `/userSubmits`,
         { quizzeId, answers },
@@ -245,7 +243,10 @@ export const submitQuizze = createAsyncThunk(
 
 export const editUserProfile = createAsyncThunk(
   "auth/editUserProfile",
-  async ({ firstName, lastName, phoneNumber, userImage, dateOfBirth }, { rejectWithValue }) => {
+  async (
+    { firstName, lastName, phoneNumber, userImage, dateOfBirth },
+    { rejectWithValue }
+  ) => {
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
@@ -257,12 +258,16 @@ export const editUserProfile = createAsyncThunk(
         formData.append("userImage", userImage);
       }
 
-      const response = await axiosClient.patch("/users/update-user-profile", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosClient.patch(
+        "/users/update-user-profile",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       const msg = error.response?.data?.message || error.message;
@@ -320,22 +325,6 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.users = null;
       localStorage.removeItem("token");
-    },
-    abc: (state, action) => {
-      state.courseSections?.forEach((course) => {
-        console.log("course", course);
-        course.sections?.forEach((section) => {
-          console.log("section", section);
-
-          section.video?.forEach((video) => {
-            console.log("video", video);
-
-            if (video.id === action.payload.videoId) {
-              video.completed = true;
-            }
-          });
-        });
-      });
     },
   },
   extraReducers: (builder) => {
@@ -473,7 +462,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
-
   },
 });
 

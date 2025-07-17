@@ -13,6 +13,8 @@ const quizzeRouter = require('./quizzeRoute')
 const questionRouter = require('./questionRouter')
 const answerRouter = require('./answerRoute')
 const userSubmitRouter = require('./userSubmitRouter')
+const orderRouter = require('./orderRouter')
+const cartRoute = require('./cartRoute')
 
 rootRouter.use('/users', userRouter)
 rootRouter.use('/categories', categoryRouter)
@@ -27,4 +29,7 @@ rootRouter.use('/quizzes', quizzeRouter)
 rootRouter.use('/questions',questionRouter)
 rootRouter.use('/answers', answerRouter)
 rootRouter.use('/userSubmits', userSubmitRouter)
+rootRouter.use('/orders', orderRouter)
+rootRouter.use('/carts', cartRoute)
+
 module.exports = rootRouter

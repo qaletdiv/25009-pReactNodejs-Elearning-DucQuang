@@ -18,7 +18,6 @@ const initialState = {
 export const fetchCourse = createAsyncThunk("course/fetchCourse", async ({page, limit}) => {
   try {
     const response = await axiosClient.get(`/courses/?page=${page}&limit=${limit}`);
-    console.log(response);
     return response.data;
   } catch (error) {
     console.log(error);
