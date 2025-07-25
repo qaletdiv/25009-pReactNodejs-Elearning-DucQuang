@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCartAsync } from "../../redux/Cart/CartSlice";
 import { clearCart } from "../../redux/Cart/CartSlice";
+import { useNavigate } from "react-router-dom";
 
 const CheckoutForm = ({ shipping = 0, discount = 0 }) => {
   const stripe = useStripe();
@@ -14,7 +15,7 @@ const CheckoutForm = ({ shipping = 0, discount = 0 }) => {
   const { accessToken, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const items = useSelector((state) => state.cart.cart.items);
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (!items || !Array.isArray(items) || items.length === 0 || !accessToken)
       return;
@@ -85,6 +86,7 @@ const CheckoutForm = ({ shipping = 0, discount = 0 }) => {
           }
         );
         toast.success("Tạo đơn hàng thành công!");
+        navigate("/user-course-enroll");
       } catch (orderError) {
         toast.error(orderError.response?.data?.message || "Lỗi tạo đơn hàng");
       }

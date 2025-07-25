@@ -28,6 +28,9 @@ const UserCourse = () => {
       <div>
         <Header />
         <div className="mt-5">
+          <h1 className="text-2xl font-bold text-center mb-5">
+            Danh sách khóa học của bạn
+          </h1>
           <UserCourseList userCourse={userCoursesEnroll} />
         </div>
       </div>

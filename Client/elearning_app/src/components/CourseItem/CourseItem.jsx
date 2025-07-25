@@ -12,6 +12,7 @@ export default function MediaCard({ course, base_url }) {
   const { users } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const handleAddToCart = async (data) => {
+   console.log(users);
     if (!users) {
       toast.warning("Bạn cần đăng nhập để thêm vào giỏ hàng!", {
         position: "top-right",

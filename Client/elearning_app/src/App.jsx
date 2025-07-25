@@ -17,7 +17,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getMe } from "./redux/AuthSlice/AuthSlice";
 import { fetchCart } from "./redux/Cart/CartSlice";
-
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 function App() {
   const dispatch = useDispatch();
 

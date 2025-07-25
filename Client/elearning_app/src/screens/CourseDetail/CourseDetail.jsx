@@ -30,37 +30,37 @@ const CourseDetail = () => {
       </div>
     );
   }
- const handleAddToCart = async (data) => {
-     if (!users) {
-       toast.warning("Bạn cần đăng nhập để thêm vào giỏ hàng!", {
-         position: "top-right",
-         autoClose: 3000,
-       });
-       navigate("/login");
-       return;
-     }
-     const isInCart = cart?.items?.some((item) => item.courseId === data);
-     if (isInCart) {
-       toast.warning("Sản phẩm đã có trong giỏ hàng!", {
-         position: "top-right",
-         autoClose: 3000,
-       });
-     } else {
-       try {
-         await dispatch(addToCart(data)).unwrap();
-         dispatch(fetchCart());
-         toast.success("Thêm giỏ hàng thành công", {
-           position: "top-right",
-           autoClose: 3000,
-         });
-       } catch (error) {
-         toast.error(error || "Có lỗi xảy ra!", {
-           position: "top-right",
-           autoClose: 3000,
-         });
-       }
-     }
-   };
+  const handleAddToCart = async (data) => {
+    if (!users) {
+      toast.warning("Bạn cần đăng nhập để thêm vào giỏ hàng!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      navigate("/login");
+      return;
+    }
+    const isInCart = cart?.items?.some((item) => item.courseId === data);
+    if (isInCart) {
+      toast.warning("Sản phẩm đã có trong giỏ hàng!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } else {
+      try {
+        await dispatch(addToCart(data)).unwrap();
+        dispatch(fetchCart());
+        toast.success("Thêm giỏ hàng thành công", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } catch (error) {
+        toast.error(error || "Có lỗi xảy ra!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    }
+  };
   const isEnrolled = userCoursesEnroll?.courses?.some(
     (enrolledCourse) => enrolledCourse.id === course.id
   );
@@ -158,7 +158,7 @@ const CourseDetail = () => {
                 </Link>
               ) : (
                 <button
-                  onClick={handleAddToCart}
+                  onClick={() => handleAddToCart(course.id)}
                   className="w-48 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300"
                 >
                   Thêm vào giỏ hàng

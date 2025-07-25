@@ -5,24 +5,29 @@ const initialState = {
   courses: [],
   loading: false,
   error: null,
-  categoryFilter: "All", 
+  categoryFilter: "All",
   levelFilter: "All",
-  course: null, 
+  course: null,
   page: 1,
-  limit: 8, 
+  limit: 8,
   currentPage: 1,
   totalPages: null,
-  totalCourses: null
+  totalCourses: null,
 };
 
-export const fetchCourse = createAsyncThunk("course/fetchCourse", async ({page, limit}) => {
-  try {
-    const response = await axiosClient.get(`/courses/?page=${page}&limit=${limit}`);
-    return response.data;
-  } catch (error) {
-    console.log(error);
+export const fetchCourse = createAsyncThunk(
+  "course/fetchCourse",
+  async ({ page, limit }) => {
+    try {
+      const response = await axiosClient.get(
+        `/courses/?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 
 export const searchCourses = createAsyncThunk(
   "course/searchCourses",
@@ -38,33 +43,35 @@ export const searchCourses = createAsyncThunk(
   }
 );
 
-export const fetchCourseById = createAsyncThunk("course/fetchCourseById", async(id) => {
-  try {
-    const response = await axiosClient.get(`/courses/${id}`)
-    return response.data
-  } catch (error) {
-    console.log(error);
+export const fetchCourseById = createAsyncThunk(
+  "course/fetchCourseById",
+  async (id) => {
+    try {
+      const response = await axiosClient.get(`/courses/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
   }
-})
-
+);
 
 const courseSlice = createSlice({
   name: "course",
   initialState,
   reducers: {
     setCategoryFilter(state, action) {
-        state.categoryFilter = action.payload
-    }, 
+      state.categoryFilter = action.payload;
+    },
     setLevelFilter(state, action) {
-        state.levelFilter = action.payload
-    }, 
+      state.levelFilter = action.payload;
+    },
     setPage(state, action) {
-      console.log("setPage",action.payload);
+      console.log("setPage", action.payload);
       state.page = action.payload;
     },
     setLimit(state, action) {
       state.limit = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -72,8 +79,7 @@ const courseSlice = createSlice({
         (state.loading = true), (state.error = null);
       })
       .addCase(fetchCourse.fulfilled, (state, action) => {
-        (state.loading = false),
-        state.courses = action.payload.courses;
+        (state.loading = false), (state.courses = action.payload.courses);
         state.totalPages = action.payload.totalPages;
         state.totalCourses = action.payload.totalCourses;
         state.currentPage = action.payload.currentPage;
@@ -88,7 +94,11 @@ const courseSlice = createSlice({
       })
       .addCase(searchCourses.fulfilled, (state, action) => {
         state.loading = false;
-        state.courses = action.payload;
+        state.courses = Array.isArray(action.payload?.courses)
+          ? action.payload.courses
+          : Array.isArray(action.payload)
+          ? action.payload
+          : [];
         state.error = null;
       })
       .addCase(searchCourses.rejected, (state, action) => {
@@ -111,5 +121,6 @@ const courseSlice = createSlice({
   },
 });
 
-export const {setLevelFilter, setCategoryFilter, setLimit, setPage} = courseSlice.actions
+export const { setLevelFilter, setCategoryFilter, setLimit, setPage } =
+  courseSlice.actions;
 export default courseSlice.reducer;

@@ -19,31 +19,53 @@ const Login = () => {
   const navigate = useNavigate();
   const onHandleSubmit = async (data) => {
     try {
-       const res = await dispatch(loginUser(data)).unwrap();
+      const res = await dispatch(loginUser(data)).unwrap();
       localStorage.setItem("token", res.token);
-      toast.success(
-        "Đăng nhập thành công! Bạn sẽ được chuyển tới trang chủ.",
-        {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        }
-      );
+      toast.success("Đăng nhập thành công! Bạn sẽ được chuyển tới trang chủ.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       await dispatch(getMe()).unwrap();
       setTimeout(() => {
         navigate("/");
-      }, 2000);
+      }, 3000);
     } catch (error) {
-      if (typeof error === "string" && error.includes("Mật khẩu không đúng")) {
+      if (Array.isArray(error?.errors)) {
+        error.errors.forEach((err) => {
+          setError(err.path, {
+            type: "server",
+            message: err.msg,
+          });
+        });
+        return;
+      }
+      const errorMessage = error?.message || error;
+      if (
+        typeof errorMessage === "string" &&
+        errorMessage.includes("Email hoặc mật khẩu không đúng")
+      ) {
+        setError("email", {
+          type: "server",
+          message:
+            "Email không tồn tại, vui lòng kiểm tra lại hoặc đăng ký tài khoản mới",
+        });
+        return;
+      }
+      if (
+        typeof errorMessage === "string" &&
+        errorMessage.includes("Mật khẩu không đúng")
+      ) {
         setError("password", {
           type: "server",
           message: "Mật khẩu không đúng, vui lòng nhập lại",
         });
-      } else {
-        toast.error(
+        return;
+      }
+      toast.error(
         "Không có kết nối mạng, vui lòng kiểm tra lại kết nối của bạn!",
         {
           position: "top-right",
@@ -54,7 +76,6 @@ const Login = () => {
           draggable: true,
         }
       );
-      }
     }
   };
   const gotoRegister = () => {
@@ -123,17 +144,16 @@ const Login = () => {
                 message: "Mật khẩu phải có ít nhất 8 ký tự",
               },
               pattern: {
-                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/,
                 message:
-                  "Mật khẩu phải có ít nhất 1 chữ thường, 1 chữ in hoa và 1 số",
+                  "Mật khẩu phải có ít nhất 1 chữ thường, 1 chữ in hoa và 1 số và không chứa ký tự đặc biệt",
               },
             }}
             error={errors.password}
           />
           <ButtonSubmit type="submit">Submit</ButtonSubmit>
           <p className="text-center text-gray-600 mt-4">
-            Bạn chưa có tài khoản?
-            {' '}
+            Bạn chưa có tài khoản?{" "}
             <span
               className="text-blue-600 hover:underline cursor-pointer"
               onClick={gotoRegister}
@@ -151,7 +171,7 @@ const Login = () => {
           </p>
         </form>
       </div>
-      <ToastContainer/>
+      <ToastContainer />
     </div>
   );
 };
