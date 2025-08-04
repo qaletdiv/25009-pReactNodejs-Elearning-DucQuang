@@ -1,6 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 export default function UserCourseItem({ userCourse, base_url }) {
+  const progress = userCourse.progress ?? 0;
+  const completedCount = userCourse.completedCount ?? 0;
+  const totalVideos = userCourse.totalVideos ?? 0;
+  const status = userCourse.Enrollment?.status || "";
+  const safeProgress = Math.min(progress, 100);
   return (
     <div className="max-w-sm w-[300px]  rounded-lg shadow-xl overflow-hidden transform transition-transform hover:scale-102 bg-white">
       <img
@@ -18,13 +23,14 @@ export default function UserCourseItem({ userCourse, base_url }) {
 
         <div className="mt-4">
           <div className="text-sm text-gray-700 mb-1">
-            Tiến độ: {userCourse.Enrollment.inProgess}% -{" "}
-            {userCourse.Enrollment.status}
+            {totalVideos === 0
+              ? "Chưa có video"
+              : `Tiến độ: ${safeProgress}% (${completedCount}/${totalVideos} video) - ${status}`}
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
               className="bg-blue-600 h-2.5 rounded-full"
-              style={{ width: `${userCourse.inProgess}%` }}
+              style={{ width: `${safeProgress}%` }}
             ></div>
           </div>
         </div>

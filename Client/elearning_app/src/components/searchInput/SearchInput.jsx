@@ -1,19 +1,24 @@
 import React, { useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
-import { useDispatch } from "react-redux";
-import { searchCourses, fetchCourse } from "../../redux/CourseSlice/CourseSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setPage } from "../../redux/CourseSlice/CourseSlice";
+import {
+  searchCourses,
+  fetchCourse,
+} from "../../redux/CourseSlice/CourseSlice";
 
 const SearchInput = () => {
   const [title, setTitle] = useState("");
   const dispatch = useDispatch();
-
+  const { page, limit } = useSelector((state) => state.course);
   const handleSubmit = (e) => {
-    e.preventDefault(); 
-   if (!title.trim()) {
-    dispatch(fetchCourse()); 
-  } else {
-    dispatch(searchCourses(title.trim())); 
-  }
+    e.preventDefault();
+    if (!title.trim()) {
+      dispatch(setPage(1));
+      dispatch(fetchCourse({ page: 1, limit }));
+    } else {
+      dispatch(searchCourses(title.trim()));
+    }
   };
 
   return (

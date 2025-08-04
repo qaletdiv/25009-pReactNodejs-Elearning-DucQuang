@@ -194,6 +194,19 @@ exports.userCourseEnroll = async (req, res, next) => {
           through: {
             attributes: ["courseId", "inProgess", "status", "id"],
           },
+          include: [
+            {
+              model: Section,
+              as: "sections",
+              include: [
+                {
+                  model: Video,
+                  as: "video",
+                  attributes: ["id"],
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -201,8 +214,33 @@ exports.userCourseEnroll = async (req, res, next) => {
     if (!userWithCourses) {
       return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
+    const coursesWithProgress = await Promise.all(
+      userWithCourses.courses.map(async (course) => {
+        const enrollmentId = course.Enrollment.id;
+        const allVideoIds = course.sections
+          .flatMap((section) => section.video)
+          .map((video) => video.id);
+        const totalVideos = allVideoIds.length;
+        const completedVideos = await VideoCompleted.findAll({
+          where: { enrollmentId },
+          attributes: ["videoId"],
+        });
+        const completedVideoIds = completedVideos.map((v) => v.videoId);
+        const completedCount = completedVideoIds.length;
+        const progress =
+          totalVideos > 0
+            ? Math.round((completedCount / totalVideos) * 100)
+            : 0;
+        return {
+          ...course.toJSON(),
+          progress,
+          totalVideos,
+          completedCount,
+        };
+      })
+    );
 
-    res.status(200).json(userWithCourses);
+    res.status(200).json({ ...userWithCourses.toJSON(), courses: coursesWithProgress });
   } catch (error) {
     next(error);
   }

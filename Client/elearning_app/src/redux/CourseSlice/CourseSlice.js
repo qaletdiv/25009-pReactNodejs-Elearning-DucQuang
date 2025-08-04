@@ -19,6 +19,7 @@ export const fetchCourse = createAsyncThunk(
   "course/fetchCourse",
   async ({ page, limit }) => {
     try {
+      console.log(">>> gọi API fetchCourse");
       const response = await axiosClient.get(
         `/courses/?page=${page}&limit=${limit}`
       );
@@ -94,10 +95,11 @@ const courseSlice = createSlice({
       })
       .addCase(searchCourses.fulfilled, (state, action) => {
         state.loading = false;
+        console.log(">>> Payload fetchCourse:", action.payload);
         state.courses = Array.isArray(action.payload?.courses)
-          ? action.payload.courses
+          ? [...action.payload.courses] 
           : Array.isArray(action.payload)
-          ? action.payload
+          ? [...action.payload]
           : [];
         state.error = null;
       })

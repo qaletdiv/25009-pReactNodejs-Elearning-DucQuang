@@ -6,15 +6,14 @@ import {
   getVideosBySection,
   markVideoCompleted,
   submitQuizze,
+  userCourses,
 } from "../../redux/AuthSlice/AuthSlice";
 import Header from "../../components/Header/Header";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const CourseUserDetail = () => {
-  const { courseSections, quizResult } = useSelector(
-    (state) => state.auth
-  );
+  const { courseSections, quizResult } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { courseId } = useParams();
   const base_url = import.meta.env.VITE_API_URL_BE;
@@ -24,7 +23,6 @@ const CourseUserDetail = () => {
   const [selectedQuizze, setSelectedQuizze] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
 
   useEffect(() => {
     if (courseId) {
@@ -34,7 +32,9 @@ const CourseUserDetail = () => {
 
   const handleCompleteVideo = (videoId, enrollmentId) => {
     dispatch(markVideoCompleted({ videoId, enrollmentId }));
-    alert("Video marked as completed!");
+    dispatch(getAllSectionByUserCourse({ courseId }));
+    dispatch(userCourses());
+    toast.success("Bạn dã hoàn thành video này");
   };
 
   const handleQuizClick = (quiz) => {
@@ -111,7 +111,7 @@ const CourseUserDetail = () => {
                           style = "text-red-600 font-bold";
                         }
                       }
-                      
+
                       return (
                         <div key={answer.id} className={style}>
                           <label>
@@ -149,8 +149,8 @@ const CourseUserDetail = () => {
                 <div className="mt-4">
                   <h3 className="text-lg font-bold">Kết quả</h3>
                   <p>
-                    Điểm: {quizResult.score} — Đúng:{" "}
-                    {quizResult.correctCount}/{quizResult.totalQuestion}
+                    Điểm: {quizResult.score} — Đúng: {quizResult.correctCount}/
+                    {quizResult.totalQuestion}
                   </p>
                 </div>
               )}
@@ -217,7 +217,7 @@ const CourseUserDetail = () => {
                               onClick={() => handleVideoClick(v)}
                             >
                               <p className="text-xs text-gray-600">
-                                {v.videoName} – {" "}
+                                {v.videoName} –{" "}
                                 {v.completed ? "Hoàn thành" : "Chưa xong"}
                               </p>
                             </div>
