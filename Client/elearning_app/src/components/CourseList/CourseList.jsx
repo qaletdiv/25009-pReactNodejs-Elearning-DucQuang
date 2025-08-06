@@ -4,6 +4,7 @@ import { fetchCourse } from "../../redux/CourseSlice/CourseSlice";
 import CourseItem from "../CourseItem/CourseItem";
 import Pagination from "@mui/material/Pagination";
 import { setPage } from "../../redux/CourseSlice/CourseSlice";
+import { userCourses } from "../../redux/AuthSlice/AuthSlice";
 const CourseList = () => {
   const dispatch = useDispatch();
   const {
@@ -20,25 +21,31 @@ const CourseList = () => {
   const handleChange = (event, value) => {
     dispatch(setPage(value));
   };
-
+  const userCoursesEnroll = useSelector((state) => state.auth.userCoursesEnroll);
+  
   useEffect(() => {
     dispatch(fetchCourse({ page, limit }));
+    dispatch(userCourses());
   }, [dispatch, page, levelFilter, categoryFilter]);
-  const filteredCourses = courses.filter((course) => {
-    const matchCategory =
-      !categoryFilter || categoryFilter === "All"
-        ? true
-        : String(course.categoryId) === String(categoryFilter) ||
-          String(course.category?.id) === String(categoryFilter);
 
-    const matchLevel =
-      !levelFilter || levelFilter === "All"
-        ? true
-        : String(course.levelId) === String(levelFilter) ||
-          String(course.level?.id) === String(levelFilter);
+  const paidCourseIds = userCoursesEnroll?.courses?.map((c) => c.id) || [];
+  const filteredCourses = courses
+    .filter((course) => !paidCourseIds.includes(course.id))
+    .filter((course) => {
+      const matchCategory =
+        !categoryFilter || categoryFilter === "All"
+          ? true
+          : String(course.categoryId) === String(categoryFilter) ||
+            String(course.category?.id) === String(categoryFilter);
 
-    return matchCategory && matchLevel;
-  });
+      const matchLevel =
+        !levelFilter || levelFilter === "All"
+          ? true
+          : String(course.levelId) === String(levelFilter) ||
+            String(course.level?.id) === String(levelFilter);
+
+      return matchCategory && matchLevel;
+    });
 
   if (loading)
     return <div className="text-center text-gray-500">Đang tải...</div>;
